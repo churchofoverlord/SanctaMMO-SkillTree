@@ -1,0 +1,6 @@
+.conditional-description{display:grid;gap:9px}
+.conditional-description .effect-common{margin:0;color:#b7c1cc;line-height:1.55}
+.conditional-description .effect-common-after{padding-top:2px;color:#9aa7b6}
+.effect-variants{display:grid;gap:7px}
+.effect-variant{margin:0;padding:8px 9px 8px 10px;border-left:2px solid color-mix(in srgb,var(--accent) 62%,#58697f);border-radius:0 7px 7px 0;background:linear-gradient(90deg,var(--accent-soft),rgba(255,255,255,.012) 62%,transparent);color:#cbd4de;line-height:1.52}
+.effect-label{display:block;margin-bottom:3px;color:color-mix(in srgb,var(--accent) 72%,white 28%);font-size:8px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
