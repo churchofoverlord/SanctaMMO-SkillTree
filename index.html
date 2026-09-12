@@ -5,15 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SanctaMMO Primary Skill Tree Simulator</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="fighter-board.css">
-<link rel="stylesheet" href="relations.css">
+<link rel="stylesheet" href="skill-board.css">
 </head>
 <body>
 <div class="app">
 <header>
   <div>
-    <h1>SanctaMMO — Primary Skill Tree Simulator</h1>
-    <div class="subtitle">Design-pass simulator for the four Primary classes. 20 available investments, 13 maximum Skill Points, cumulative tier thresholds 0 / 5 / 9 / 11. Hover a node for its standardized skill description.</div>
+    <h1>SanctaMMO — Primary Skill Trees</h1>
+    <div class="subtitle">Interactive build board for Fighter, Scout, Mage and Mystic. Spend up to 13 Skill Points across 20 Primary investments and inspect authored upgrade paths and mutually exclusive branches.</div>
   </div>
   <div class="class-tabs" id="classTabs"></div>
 </header>
@@ -30,14 +29,8 @@
   </div>
 </div>
 
-<div class="rules">
- <span class="pill">Tier 1: 0 SP</span><span class="pill">Tier 2: 5 SP</span>
- <span class="pill">Tier 3: 9 SP</span><span class="pill">Tier 4: 11 SP</span>
- <span class="pill">Granted core costs 0 SP</span><span class="pill">Basic Attack is a Universal Action</span>
-</div>
-
 <section class="granted-wrap">
-  <div class="section-label">Granted Core <span class="pill">not purchased</span></div>
+  <div class="section-label">Granted Core <span class="pill">0 SP</span></div>
   <div class="granted-grid" id="grantedGrid"></div>
 </section>
 
@@ -46,7 +39,7 @@
 </div>
 <div class="notice" id="notice"></div>
 <div id="appendixHolder"></div>
-<div class="footer">No skill images yet. Current design-reference data; canonical numbered project documents govern after SYNC.</div>
+<div class="footer">Basic Attack is a Universal Action. Numerical X values remain tuning placeholders; canonical project documents remain authoritative.</div>
 </div>
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 
@@ -55,7 +48,6 @@
 <script src="data/mage.js"></script>
 <script src="data/mystic.js"></script>
 <script src="app.js"></script>
-<script src="fighter-board.js"></script>
-<script src="relations.js"></script>
+<script src="skill-board.js"></script>
 </body>
 </html>
