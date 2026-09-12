@@ -95,5 +95,15 @@
 <script src="data/mage.js"></script>
 <script src="data/mystic.js"></script>
 <script src="app.js"></script>
+<script>
+  (() => {
+    const requested = new URLSearchParams(window.location.search).get('class');
+    if (requested && window.SKILL_TREE_DATA?.[requested] && requested !== currentClass) {
+      currentClass = requested;
+      inspected = null;
+      renderAll();
+    }
+  })();
+</script>
 </body>
 </html>
