@@ -83,9 +83,12 @@ function makeFighterNode(node,set){
 }
 
 renderTree = function(){
-  if(currentClass!=='Fighter') return fighterOriginalRenderTree();
-
   const root=document.getElementById('tree');
+  if(currentClass!=='Fighter'){
+    root.className='tree';
+    return fighterOriginalRenderTree();
+  }
+
   root.innerHTML='';
   root.className='tree fighter-tree';
   const set=selectedSet();
