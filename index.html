@@ -2,52 +2,98 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SanctaMMO Primary Skill Tree Simulator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090c12">
+<title>SanctaMMO — Primary Skill Trees</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="skill-board.css">
 </head>
-<body>
-<div class="app">
-<header>
-  <div>
-    <h1>SanctaMMO — Primary Skill Trees</h1>
-    <div class="subtitle">Interactive build board for Fighter, Scout, Mage and Mystic. Spend up to 13 Skill Points across 20 Primary investments and inspect authored upgrade paths and mutually exclusive branches.</div>
-  </div>
-  <div class="class-tabs" id="classTabs"></div>
-</header>
+<body data-class="fighter">
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true">S</div>
+      <div>
+        <div class="eyebrow">SanctaMMO</div>
+        <h1>Primary Skill Trees</h1>
+      </div>
+    </div>
+    <nav class="class-tabs" id="classTabs" aria-label="Primary classes"></nav>
+  </header>
 
-<div class="toolbar">
-  <div class="summary">
-    <div class="role" id="role"></div>
-    <div class="counter"><strong id="spent">0</strong><span> / 13 SP spent</span></div>
-    <div class="counter"><strong id="remaining">13</strong><span> remaining</span></div>
-  </div>
-  <div class="actions">
-    <button class="secondary-btn" id="resetClass">Reset class</button>
-    <button class="secondary-btn" id="resetAll">Reset all</button>
-  </div>
-</div>
+  <section class="build-panel" aria-label="Build status">
+    <div class="class-summary">
+      <div>
+        <div class="current-class" id="currentClass">Fighter</div>
+        <div class="role" id="role"></div>
+      </div>
+      <div class="sp-summary">
+        <strong><span id="spent">0</span><em>/13</em></strong>
+        <span>Skill Points</span>
+      </div>
+    </div>
 
-<section class="granted-wrap">
-  <div class="section-label">Granted Core <span class="pill">0 SP</span></div>
-  <div class="granted-grid" id="grantedGrid"></div>
-</section>
+    <div class="progress-wrap">
+      <div class="progress-rail" aria-label="Skill Point progression">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="milestones" id="milestones"></div>
+      </div>
+      <div class="build-actions">
+        <span id="remaining">13 SP remaining</span>
+        <button class="text-btn" id="resetClass" type="button">Reset class</button>
+        <button class="text-btn subtle" id="resetAll" type="button">Reset all</button>
+      </div>
+    </div>
+  </section>
 
-<div class="tree-shell">
- <div class="tree" id="tree"></div>
+  <section class="core-section" aria-labelledby="coreTitle">
+    <div class="section-heading">
+      <div>
+        <span class="section-kicker">Always available</span>
+        <h2 id="coreTitle">Granted Core</h2>
+      </div>
+      <span class="zero-cost">0 SP</span>
+    </div>
+    <div class="core-strip" id="grantedGrid"></div>
+  </section>
+
+  <main class="workspace">
+    <section class="tree-region" aria-label="Primary skill tree">
+      <div class="tree-toolbar">
+        <div class="legend" aria-label="Relation legend">
+          <span><i class="legend-line prerequisite"></i>Prerequisite</span>
+          <span><i class="legend-line exclusive"></i>Exclusive choice</span>
+        </div>
+        <span class="scroll-hint">Swipe / scroll horizontally to explore tiers →</span>
+      </div>
+      <div class="tree-shell" id="treeShell">
+        <div class="tree" id="tree"></div>
+      </div>
+      <div class="notice" id="notice" aria-live="polite"></div>
+      <div id="appendixHolder"></div>
+    </section>
+
+    <aside class="inspector" id="inspector" aria-live="polite" aria-label="Skill details">
+      <button class="inspector-close" id="inspectorClose" type="button" aria-label="Close skill details">×</button>
+      <div id="inspectorContent" class="inspector-content">
+        <div class="inspector-empty">
+          <div class="empty-glyph" aria-hidden="true">✦</div>
+          <h2>Inspect a skill</h2>
+          <p>Select any node to view its full description, requirements and build action.</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <span>Basic Attack is a Universal Action.</span>
+    <span>Canonical project documents remain authoritative.</span>
+  </footer>
 </div>
-<div class="notice" id="notice"></div>
-<div id="appendixHolder"></div>
-<div class="footer">Basic Attack is a Universal Action. Numerical X values remain tuning placeholders; canonical project documents remain authoritative.</div>
-</div>
-<div class="tooltip" id="tooltip" role="tooltip"></div>
 
 <script src="data/fighter.js"></script>
 <script src="data/scout.js"></script>
 <script src="data/mage.js"></script>
 <script src="data/mystic.js"></script>
 <script src="app.js"></script>
-<script src="skill-board.js"></script>
 </body>
 </html>
