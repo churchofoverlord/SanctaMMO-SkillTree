@@ -1,0 +1,30 @@
+.fighter-tree{min-width:1180px;padding:0}
+.fighter-board{padding:18px 18px 22px}
+.board-note{display:flex;gap:14px;align-items:baseline;border:1px solid #2b3a4e;background:#0d151f;border-radius:12px;padding:10px 12px;margin-bottom:12px;color:#91a2b8}
+.board-note b{color:#eef4fb;white-space:nowrap}
+.board-note span{font-size:12px}
+.board-heads{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:42px;margin-bottom:10px}
+.board-head{border:1px solid #2b384b;background:#0b121b;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline}
+.board-head.unlocked{border-color:color-mix(in srgb,var(--good) 62%,#2b384b)}
+.board-tier{font-size:15px;font-weight:850;color:#eef4fb;text-transform:uppercase;letter-spacing:.045em}
+.board-gate{font-size:11px;color:#93a3b7;text-align:right}
+.board-count{grid-column:1/-1;font-size:10px;color:#66788f;margin-top:2px}
+.board-canvas{position:relative;display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));grid-template-rows:repeat(11,118px);column-gap:42px;row-gap:12px;padding:10px 4px 14px;background:linear-gradient(90deg,rgba(122,162,247,.025) 0 24%,transparent 24% 25.3%,rgba(122,162,247,.018) 25.3% 49.3%,transparent 49.3% 50.7%,rgba(122,162,247,.014) 50.7% 74.7%,transparent 74.7% 76%,rgba(122,162,247,.01) 76% 100%);border-radius:14px}
+.board-canvas .node{z-index:2;align-self:center;width:100%;min-height:104px;margin:0}
+.board-canvas .node-name{font-size:13px}
+.board-canvas .dep-dot{max-width:118px}
+.board-canvas .connections{position:absolute;inset:0;z-index:1;overflow:visible;pointer-events:none}
+.connection{fill:none;stroke:#3b4a60;stroke-width:2;opacity:.74}
+.connection.active{stroke:#6f93c8;opacity:.95}
+.connection.complete{stroke:var(--good);stroke-width:2.4;opacity:1}
+.connections marker path{fill:#52657d}
+.fighter-node.state-prereq{opacity:.68;border-color:#705f3d;border-style:dashed}
+.fighter-node.state-tier{opacity:.4}
+.fighter-node.state-cap{opacity:.42}
+.fighter-node.state-available .lock-reason{color:#8192a7}
+.fighter-node.state-prereq .lock-reason{color:#d0b579}
+@media(max-width:720px){
+ .fighter-tree{padding:0;min-width:1080px}
+ .fighter-board{padding:12px}
+ .board-note{position:sticky;left:0;z-index:5;width:min(92vw,680px)}
+}
