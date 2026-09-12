@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SanctaMMO Primary Skill Tree Simulator</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+<header>
+  <div>
+    <h1>SanctaMMO — Primary Skill Tree Simulator</h1>
+    <div class="subtitle">Design-pass simulator for the four Primary classes. 20 available investments, 13 maximum Skill Points, cumulative tier thresholds 0 / 5 / 9 / 11. Hover a node for its standardized skill description.</div>
+  </div>
+  <div class="class-tabs" id="classTabs"></div>
+</header>
+
+<div class="toolbar">
+  <div class="summary">
+    <div class="role" id="role"></div>
+    <div class="counter"><strong id="spent">0</strong><span> / 13 SP spent</span></div>
+    <div class="counter"><strong id="remaining">13</strong><span> remaining</span></div>
+  </div>
+  <div class="actions">
+    <button class="secondary-btn" id="resetClass">Reset class</button>
+    <button class="secondary-btn" id="resetAll">Reset all</button>
+  </div>
+</div>
+
+<div class="rules">
+ <span class="pill">Tier 1: 0 SP</span><span class="pill">Tier 2: 5 SP</span>
+ <span class="pill">Tier 3: 9 SP</span><span class="pill">Tier 4: 11 SP</span>
+ <span class="pill">Granted core costs 0 SP</span><span class="pill">Basic Attack is a Universal Action</span>
+</div>
+
+<section class="granted-wrap">
+  <div class="section-label">Granted Core <span class="pill">not purchased</span></div>
+  <div class="granted-grid" id="grantedGrid"></div>
+</section>
+
+<div class="tree-shell">
+ <div class="tree" id="tree"></div>
+</div>
+<div class="notice" id="notice"></div>
+<div id="appendixHolder"></div>
+<div class="footer">No skill images yet. Current design-reference data; canonical numbered project documents govern after SYNC.</div>
+</div>
+<div class="tooltip" id="tooltip" role="tooltip"></div>
+
+<script src="data/fighter.js"></script>
+<script src="data/scout.js"></script>
+<script src="data/mage.js"></script>
+<script src="data/mystic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
