@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>SanctaMMO — Primary Skill Trees</title>
-<link rel="stylesheet" href="styles.css?v=tier-locked-1">
+<link rel="stylesheet" href="styles.css?v=reset-skill-points-1">
 <link rel="stylesheet" href="description-format.css">
 </head>
 <body data-class="fighter">
@@ -40,7 +40,6 @@
       </div>
       <div class="build-actions">
         <span id="remaining">13 SP remaining</span>
-        <button class="text-btn" id="resetClass" type="button">Reset class</button>
         <button class="text-btn subtle" id="resetAll" type="button">Reset all</button>
       </div>
     </div>
@@ -56,6 +55,10 @@
     </div>
     <div class="core-strip" id="grantedGrid"></div>
   </section>
+
+  <div class="skill-reset-bar">
+    <button class="skill-reset-button" id="resetClass" type="button">Reset Skill Points</button>
+  </div>
 
   <main class="workspace">
     <section class="tree-region" aria-label="Primary skill tree">
