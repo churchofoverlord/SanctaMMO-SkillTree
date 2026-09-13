@@ -1,15 +1,18 @@
-const colonLabelPattern =
-  /^(Warrior Stance|Tank Stance|Warrior(?:\s+—\s+[^:]+)?|Tank(?:\s+—\s+[^:]+)?|Sun Stance|Moon Stance|Sun Aura|Moon Aura|Sun|Moon|Ally|Enemy|Bright Star|Full Moon|Rage|Bulwark|Manifest|Weave|Tick|Tack|Clarity|Surge|Strain|Ice|Lightning|(?:Fire|Ice|Lightning) \+ (?:Fire|Ice|Lightning)):\s*(.+)$/i;
-
-function formatConditionalDescription(text) {
-  return String(text || '')
+const FORM_LABEL =
+  /^(Warrior Stance|Tank Stance|Poison Stance|Bleed Stance|Warrior form|Tank form|Warrior|Tank|Sun Stance|Moon Stance|Sun Aura|Moon Aura|Sun|Moon|Ally|Enemy|Bright Star|Full Moon|Rage|Bulwark|Poison Sac|Hemorrhage|Manifest|Weave|Clarity|Surge|Strain|Fire|Ice|Lightning):\s*(.+)$/i;
+const INLINE_FORM =
+  /\s+(?=(?:Warrior form|Tank form|Warrior|Tank|Sun|Moon|Ally|Enemy|Bright Star|Full Moon|Rage|Bulwark|Poison Sac|Hemorrhage|Manifest|Weave|Clarity|Surge|Strain|Fire|Ice|Lightning):)/gi;
+function formatDescription(text, keywords = []) {
+  const paragraphs = String(text || '')
+    .replace(INLINE_FORM, '\n')
     .split(/\n+/)
-    .filter((paragraph) => paragraph.trim())
+    .filter((p) => p.trim());
+  return paragraphs
     .map((paragraph) => {
-      const match = paragraph.trim().match(colonLabelPattern);
-      if (!match) return `<p class="effect-common">${formatEffectText(paragraph)}</p>`;
-      return `<p class="effect-variant"><span class="effect-label">${formatEffectText(match[1])}</span><span>${formatEffectText(match[2])}</span></p>`;
+      const match = paragraph.trim().match(FORM_LABEL);
+      if (!match)
+        return `<p class="description-paragraph">${formatTaggedText(paragraph, keywords)}</p>`;
+      return `<p class="form-block"><span class="form-label">${formatTaggedText(match[1], keywords)}</span><span>${formatTaggedText(match[2], keywords)}</span></p>`;
     })
     .join('');
 }
-

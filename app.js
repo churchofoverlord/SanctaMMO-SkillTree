@@ -1,697 +1,363 @@
 const DATA = window.SKILL_TREE_DATA;
-const STORAGE_KEY = 'sanctammo-skill-tree-v1';
+const STORAGE_KEY = 'sanctammo-skill-tree-v2';
 const MAX_SP = 13;
-
-const requestedClass = new URLSearchParams(window.location.search).get('class');
+const requestedClass = new URLSearchParams(location.search).get('class');
 let currentClass = Object.hasOwn(DATA, requestedClass) ? requestedClass : 'Fighter';
 let state = loadState();
 let inspected = null;
 
 function emptyState() {
-  const result = {};
-  Object.keys(DATA).forEach((name) => (result[name] = []));
-  return result;
+  return Object.fromEntries(Object.keys(DATA).map((name) => [name, []]));
 }
-
 function loadState() {
   try {
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     const clean = emptyState();
-    if (!raw || typeof raw !== 'object') return clean;
-    Object.keys(DATA).forEach((name) => {
-      const validIds = new Set(DATA[name].nodes.map((n) => n.id));
-      const incoming = Array.isArray(raw[name])
-        ? raw[name].filter((id) => validIds.has(id))
-        : [];
-      const chosen = [];
-      incoming.forEach((id) => {
-        const node = DATA[name].nodes.find((n) => n.id === id);
-        if (!node) return;
-        if (node.exclusiveWith?.some((other) => chosen.includes(other))) return;
-        chosen.push(id);
-      });
-      clean[name] = chosen.slice(0, DATA[name].maxSp || MAX_SP);
-    });
+    for (const name of Object.keys(DATA)) {
+      const data = DATA[name],
+        valid = new Set(data.nodes.map((n) => n.id)),
+        chosen = new Set();
+      for (const id of Array.isArray(saved?.[name]) ? saved[name] : []) {
+        const node = data.nodes.find((n) => n.id === id);
+        if (!valid.has(id) || chosen.size >= data.maxSp) continue;
+        if ((node.requires || []).some((req) => !chosen.has(req))) continue;
+        if ((node.exclusiveWith || []).some((other) => chosen.has(other))) continue;
+        if (chosen.size < (data.thresholds[String(node.tier)] || 0)) continue;
+        chosen.add(id);
+      }
+      clean[name] = [...chosen];
+    }
     return clean;
-  } catch (_) {
+  } catch {
     return emptyState();
   }
 }
-
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
-
 function classData() {
   return DATA[currentClass];
 }
-function selectedSet() {
+function learnedSet() {
   return new Set(state[currentClass]);
 }
-function spent() {
+function learnedCount() {
   return state[currentClass].length;
 }
 function maxSp() {
   return classData().maxSp || MAX_SP;
 }
 function threshold(tier) {
-  return classData().thresholds[String(tier)];
+  return classData().thresholds[String(tier)] || 0;
 }
 function byId(id) {
-  return classData().nodes.find((n) => n.id === id);
+  return classData().nodes.find((node) => node.id === id);
 }
 function tierUnlocked(tier) {
-  return spent() >= threshold(tier);
+  return learnedCount() >= threshold(tier);
 }
-
+function toRoman(n) {
+  return ['', 'I', 'II', 'III', 'IV'][n] || n;
+}
 function initials(name) {
-  return String(name || '')
-    .replace(/—.*$/, '')
-    .split(/\s+|\//)
-    .filter(Boolean)
+  return String(name)
+    .split('/')[0]
+    .replace(/\s+[IV]+$/, '')
+    .split(/\s+/)
     .slice(0, 2)
-    .map((part) => part[0])
+    .map((x) => x[0])
     .join('')
     .toUpperCase();
 }
 
-function escapeHtml(value) {
-  return String(value ?? '').replace(
-    /[&<>"']/g,
-    (char) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;',
-      })[char],
-  );
-}
-
-function missingPrereqs(node, set = selectedSet()) {
-  return (node.requires || []).filter((id) => !set.has(id));
-}
-
-function activeExclusions(node, set = selectedSet()) {
-  return (node.exclusiveWith || []).filter((id) => set.has(id));
-}
-
-function availability(node, set = selectedSet()) {
-  if (set.has(node.id)) return { ok: true, selected: true, reason: 'Purchased' };
-  if (spent() >= maxSp())
-    return { ok: false, code: 'cap', reason: `Maximum ${maxSp()} Skill Points reached` };
-  if (!tierUnlocked(node.tier))
+function nodeState(node, set = learnedSet()) {
+  if (set.has(node.id)) return { code: 'learned', label: 'Learned', reason: 'Learned' };
+  if (!tierUnlocked(node.tier)) {
+    const more = threshold(node.tier) - learnedCount();
     return {
-      ok: false,
-      code: 'tier',
-      reason: `Requires ${threshold(node.tier)} SP spent`,
-    };
-  const missing = missingPrereqs(node, set);
-  if (missing.length) {
-    return {
-      ok: false,
-      code: 'prereq',
-      reason: `Requires ${missing.map((id) => byId(id)?.name || id).join(' + ')}`,
+      code: 'locked',
+      label: 'Locked',
+      reason: `Locked — Spend ${more} more SP to unlock Tier ${toRoman(node.tier)}`,
     };
   }
-  const excluded = activeExclusions(node, set);
-  if (excluded.length) {
+  const missing = (node.requires || []).filter((id) => !set.has(id));
+  if (missing.length)
     return {
-      ok: false,
-      code: 'exclusive',
-      reason: `Alternative selected: ${excluded.map((id) => byId(id)?.name || id).join(', ')}`,
+      code: 'locked',
+      label: 'Locked',
+      reason: `Locked — Requires ${missing.map((id) => byId(id)?.name || id).join(' + ')}`,
     };
-  }
-  return { ok: true, code: 'available', reason: 'Available' };
+  const excluded = (node.exclusiveWith || []).filter((id) => set.has(id));
+  if (excluded.length)
+    return {
+      code: 'locked',
+      label: 'Locked',
+      reason: `Locked — Cannot be learned with ${excluded.map((id) => byId(id)?.name || id).join(', ')}`,
+    };
+  if (learnedCount() >= maxSp())
+    return {
+      code: 'locked',
+      label: 'Locked',
+      reason: `Locked — Maximum ${maxSp()} Skill Points reached`,
+    };
+  return { code: 'available', label: 'Available', reason: 'Available to learn' };
+}
+function showNotice(text, type = '') {
+  const n = document.getElementById('notice');
+  n.textContent = text;
+  n.className = `notice ${type}`.trim();
 }
 
-function selectedAllocationValidForTier(tier, total) {
-  if (tier === 1) return true;
-  return total >= threshold(tier) + 1;
+function showConfirm({ title, message, confirmLabel, onConfirm }) {
+  const dialog = document.getElementById('confirmDialog');
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+  const confirm = document.getElementById('confirmAccept');
+  confirm.textContent = confirmLabel;
+  confirm.onclick = () => {
+    dialog.close();
+    onConfirm();
+  };
+  document.getElementById('confirmCancel').onclick = () => dialog.close();
+  dialog.showModal();
 }
-
-function normalizeAfterRemoval(set) {
-  const removed = [];
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const node of classData().nodes) {
-      if (!set.has(node.id)) continue;
-      const invalidPrereq = (node.requires || []).some((id) => !set.has(id));
-      const invalidTier = !selectedAllocationValidForTier(node.tier, set.size);
-      if (invalidPrereq || invalidTier) {
-        set.delete(node.id);
-        removed.push(node.name);
-        changed = true;
-      }
-    }
+function commitLearn(node) {
+  const status = nodeState(node);
+  if (status.code !== 'available') {
+    showNotice(status.reason, 'error');
+    return;
   }
-  return removed;
-}
-
-function togglePurchase(id) {
-  const node = byId(id);
-  if (!node) return;
-  const set = selectedSet();
-
-  if (set.has(id)) {
-    set.delete(id);
-    const cascade = normalizeAfterRemoval(set);
-    state[currentClass] = [...set];
-    saveState();
-    showNotice(
-      cascade.length
-        ? `Refunded ${node.name}; ${cascade.length} dependent investment${cascade.length === 1 ? '' : 's'} also removed.`
-        : `Refunded ${node.name}.`,
-    );
-  } else {
-    const check = availability(node);
-    if (!check.ok) {
-      showNotice(check.reason, 'error');
-      renderInspector();
-      return;
-    }
-    set.add(id);
-    state[currentClass] = [...set];
-    saveState();
-    showNotice(`Learned ${node.name}.`, 'good');
-  }
-
+  state[currentClass] = [...state[currentClass], node.id];
+  saveState();
+  inspected = { type: 'node', id: node.id };
+  showNotice(`Learned ${node.name}.`, 'good');
   renderAll();
 }
-
-function showNotice(text, type = '') {
-  const notice = document.getElementById('notice');
-  notice.textContent = text;
-  notice.className = `notice ${type}`.trim();
-}
-
-function semanticKind(node) {
-  if ((node.exclusiveWith || []).length) return 'Branch';
-  if ((node.requires || []).length) return 'Upgrade';
-  if (
-    String(node.fields?.['Activation Type'] || '')
-      .toLowerCase()
-      .includes('passive')
-  )
-    return 'Passive';
-  return 'Skill';
-}
-
-function buildComponents(nodes) {
-  const index = new Map(nodes.map((node, i) => [node.id, i]));
-  const adjacency = new Map(nodes.map((node) => [node.id, new Set()]));
-
-  nodes.forEach((node) => {
-    [...(node.requires || []), ...(node.exclusiveWith || [])].forEach((other) => {
-      if (!adjacency.has(other)) return;
-      adjacency.get(node.id).add(other);
-      adjacency.get(other).add(node.id);
+function learnNode(node) {
+  if ((node.exclusiveWith || []).length) {
+    const alternative = (node.exclusiveWith || []).map((id) => byId(id)?.name || id).join(', ');
+    showConfirm({
+      title: `Learn ${node.name}?`,
+      message: `This choice locks ${alternative} until you reset the entire Skill Tree.`,
+      confirmLabel: 'Confirm choice',
+      onConfirm: () => commitLearn(node),
     });
-  });
-
-  const seen = new Set();
-  const components = [];
-  nodes.forEach((start) => {
-    if (seen.has(start.id)) return;
-    const stack = [start.id];
-    const ids = [];
-    seen.add(start.id);
-    while (stack.length) {
-      const id = stack.pop();
-      ids.push(id);
-      adjacency.get(id).forEach((next) => {
-        if (seen.has(next)) return;
-        seen.add(next);
-        stack.push(next);
-      });
-    }
-    ids.sort((a, b) => index.get(a) - index.get(b));
-    components.push(ids.map((id) => nodes[index.get(id)]));
-  });
-  return components;
+  } else commitLearn(node);
 }
-
-function computeLayout(data) {
-  const components = buildComponents(data.nodes);
-  const related = components.filter((group) => group.length > 1);
-  const singles = components.filter((group) => group.length === 1).flat();
-  const positions = {};
-  let row = 1;
-
-  related.forEach((component) => {
-    const groups = { 1: [], 2: [], 3: [], 4: [] };
-    component.forEach((node) => groups[node.tier].push(node));
-    const span = Math.max(1, ...Object.values(groups).map((list) => list.length));
-    const rows = Array.from({ length: span }, (_, i) => row + i);
-
-    for (let tier = 1; tier <= 4; tier++) {
-      const used = new Set();
-      groups[tier]
-        .sort((a, b) => {
-          const ap =
-            (a.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
-          const bp =
-            (b.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
-          if (ap !== bp) return ap - bp;
-          return data.nodes.indexOf(a) - data.nodes.indexOf(b);
-        })
-        .forEach((node) => {
-          const parentRow = (node.requires || [])
-            .map((id) => positions[id]?.row)
-            .find(Boolean);
-          let targetRow =
-            parentRow && rows.includes(parentRow) && !used.has(parentRow)
-              ? parentRow
-              : null;
-          if (!targetRow) targetRow = rows.find((candidate) => !used.has(candidate));
-          if (!targetRow) targetRow = rows[0];
-          used.add(targetRow);
-          positions[node.id] = { tier, row: targetRow };
-        });
-    }
-    row += span;
+function resetTree() {
+  showConfirm({
+    title: `Reset ${currentClass} Skill Tree?`,
+    message: 'All learned nodes will be cleared and all 13 Primary Skill Points will be returned.',
+    confirmLabel: 'Reset Skill Tree',
+    onConfirm: () => {
+      state[currentClass] = [];
+      saveState();
+      inspected = null;
+      showNotice(`${currentClass} Skill Tree reset.`, 'good');
+      renderAll();
+    },
   });
-
-  const packedRows = [];
-  singles.forEach((node) => {
-    let slot = packedRows.find((entry) => !entry.tiers.has(node.tier));
-    if (!slot) {
-      slot = { row: row + packedRows.length, tiers: new Set() };
-      packedRows.push(slot);
-    }
-    slot.tiers.add(node.tier);
-    positions[node.id] = { tier: node.tier, row: slot.row };
-  });
-
-  const totalRows = Math.max(1, row - 1 + packedRows.length);
-  return { positions, totalRows };
 }
 
 function renderTabs() {
-  const container = document.getElementById('classTabs');
-  container.innerHTML = '';
-  Object.keys(DATA).forEach((name) => {
+  const root = document.getElementById('classTabs');
+  root.innerHTML = '';
+  for (const name of Object.keys(DATA)) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `class-tab${name === currentClass ? ' active' : ''}`;
     button.textContent = name;
-    button.setAttribute('aria-pressed', name === currentClass ? 'true' : 'false');
+    button.setAttribute('aria-pressed', String(name === currentClass));
     button.onclick = () => {
       currentClass = name;
       inspected = null;
       showNotice('');
       renderAll();
     };
-    container.appendChild(button);
-  });
+    root.append(button);
+  }
 }
-
 function renderBuildStatus() {
-  const data = classData();
-  const current = spent();
+  const count = learnedCount();
   document.body.dataset.class = currentClass.toLowerCase();
   document.getElementById('currentClass').textContent = currentClass;
-  document.getElementById('role').textContent = data.role;
-  document.getElementById('spent').textContent = current;
-  document.getElementById('remaining').textContent = `${maxSp() - current} SP remaining`;
-  document.getElementById('progressFill').style.width =
-    `${Math.min(100, (current / maxSp()) * 100)}%`;
-
-  const milestones = Object.keys(data.thresholds).map((tier) => ({
-    value: threshold(Number(tier)),
-    label: `Tier ${toRoman(Number(tier))}`,
-  }));
-  milestones.push({ value: maxSp(), label: 'Cap' });
-  const wrap = document.getElementById('milestones');
-  wrap.innerHTML = '';
-  milestones.forEach((item) => {
-    const marker = document.createElement('div');
-    marker.className = `milestone${current >= item.value ? ' reached' : ''}`;
-    marker.style.left = `${(item.value / maxSp()) * 100}%`;
-    marker.innerHTML = `<i></i><span>${escapeHtml(item.label)}</span><b>${item.value}</b>`;
-    wrap.appendChild(marker);
-  });
+  document.getElementById('role').textContent = classData().role;
+  document.getElementById('spent').textContent = count;
+  document.getElementById('remaining').textContent = `${maxSp() - count} SP remaining`;
+  document.getElementById('progressFill').style.width = `${(count / maxSp()) * 100}%`;
+  const milestones = [1, 2, 3, 4]
+    .map((tier) => ({ value: threshold(tier), label: `Tier ${toRoman(tier)}` }))
+    .concat({ value: maxSp(), label: 'Cap' });
+  document.getElementById('milestones').innerHTML = milestones
+    .map(
+      (x) =>
+        `<span class="milestone ${count >= x.value ? 'reached' : ''}" style="left:${(x.value / maxSp()) * 100}%"><i></i><em>${x.label}</em><b>${x.value}</b></span>`,
+    )
+    .join('');
 }
-
 function renderCore() {
-  const grid = document.getElementById('grantedGrid');
-  grid.innerHTML = '';
-  classData().core.forEach((core) => {
+  const root = document.getElementById('grantedGrid');
+  root.innerHTML = '';
+  for (const core of classData().core) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `core-card${inspected?.type === 'core' && inspected.id === core.id ? ' inspected' : ''}`;
-    button.title = normalizeDebuffNames(core.short || core.name);
-    button.innerHTML = `
-      <span class="core-icon">${escapeHtml(initials(core.name))}</span>
-      <span class="core-copy"><strong>${escapeHtml(core.name)}</strong><small>Granted</small></span>
-      <span class="inspect-chevron" aria-hidden="true">›</span>`;
+    button.setAttribute('aria-label', `${core.name}. Granted Core. Open details.`);
+    button.innerHTML = `<span class="core-icon">${initials(core.name)}</span><span><strong>${core.name}</strong><small>Granted Core</small></span><span aria-hidden="true">›</span>`;
     button.onclick = () => inspect('core', core.id);
-    grid.appendChild(button);
-  });
+    root.append(button);
+  }
 }
-
 function createNode(node) {
-  const check = availability(node);
-  const stateName = check.selected ? 'selected' : check.code;
-  const button = document.createElement('button');
+  const status = nodeState(node),
+    button = document.createElement('button');
   button.type = 'button';
-  button.className = `skill-node state-${stateName}${inspected?.type === 'node' && inspected.id === node.id ? ' inspected' : ''}`;
+  button.className = `skill-node state-${status.code}${inspected?.type === 'node' && inspected.id === node.id ? ' inspected' : ''}`;
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
-  button.title = normalizeDebuffNames(node.short || node.name);
-  button.setAttribute(
-    'aria-label',
-    `${node.name}. ${check.reason}. Select for details. Double-click to learn or refund.`,
-  );
-  button.innerHTML = `
-    <span class="node-icon">${escapeHtml(initials(node.name))}</span>
-    <span class="node-copy">
-      <strong>${escapeHtml(node.name)}</strong>
-      <small>${escapeHtml(semanticKind(node))}</small>
-    </span>
-    <span class="node-cost">${node.cost || 1}<em>SP</em></span>
-    <span class="state-mark" aria-hidden="true"></span>`;
+  button.dataset.order = node.order;
+  button.title = status.reason;
+  button.setAttribute('aria-label', `${node.name}. ${status.reason}. Open details.`);
+  const mark = status.code === 'learned' ? '✓' : status.code === 'locked' ? '🔒' : '';
+  button.innerHTML = `<span class="node-icon">${initials(node.name)}${mark ? `<i class="state-mark" aria-hidden="true">${mark}</i>` : ''}</span><strong>${node.name}</strong>`;
   button.onclick = () => inspect('node', node.id);
-  button.addEventListener('dblclick', (event) => {
-    event.preventDefault();
-    togglePurchase(node.id);
-  });
-  button.addEventListener('mouseenter', () => emphasizeRelations(node.id, true));
-  button.addEventListener('mouseleave', () => emphasizeRelations(node.id, false));
-  button.addEventListener('focus', () => emphasizeRelations(node.id, true));
-  button.addEventListener('blur', () => emphasizeRelations(node.id, false));
   return button;
 }
-
 function renderTree() {
-  const data = classData();
-  const layout = computeLayout(data);
   const root = document.getElementById('tree');
   root.innerHTML = '';
-
   const board = document.createElement('div');
-  board.className = 'skill-board';
-  board.style.setProperty('--rows', layout.totalRows);
-
-  const heads = document.createElement('div');
-  heads.className = 'tier-heads';
-  for (let tier = 1; tier <= 4; tier++) {
-    const head = document.createElement('div');
-    const unlocked = tierUnlocked(tier);
-    head.className = `tier-head${unlocked ? ' unlocked' : ''}`;
-    head.innerHTML = `
-      <div class="tier-title"><span>Tier ${toRoman(tier)}${unlocked ? '' : ' <strong class="tier-locked">LOCKED</strong>'}</span><b>${unlocked ? 'OPEN' : `Spend +${Math.max(0, threshold(tier) - spent())} SP to unlock`}</b></div>
-      <small>${data.tierCounts[String(tier)]} investments</small>`;
-    heads.appendChild(head);
-  }
-  board.appendChild(heads);
-
-  const canvas = document.createElement('div');
-  canvas.className = 'tree-canvas';
-  canvas.style.setProperty('--rows', layout.totalRows);
-
-  const lanes = document.createElement('div');
-  lanes.className = 'tier-lanes';
-  for (let tier = 1; tier <= 4; tier++) {
-    const lane = document.createElement('div');
-    lane.className = `tier-lane tier-${tier}${tierUnlocked(tier) ? ' unlocked' : ''}`;
-    lanes.appendChild(lane);
-  }
-  canvas.appendChild(lanes);
-
+  board.className = 'vertical-tree';
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.classList.add('relations');
   svg.setAttribute('aria-hidden', 'true');
-  canvas.appendChild(svg);
-
-  data.nodes.forEach((node) => {
-    const position = layout.positions[node.id];
-    const element = createNode(node);
-    element.style.gridColumn = String(position.tier);
-    element.style.gridRow = String(position.row);
-    canvas.appendChild(element);
-  });
-
-  board.appendChild(canvas);
-  root.appendChild(board);
-  requestAnimationFrame(() => requestAnimationFrame(() => drawRelations(canvas)));
+  board.append(svg);
+  for (let tier = 1; tier <= 4; tier++) {
+    const unlocked = tierUnlocked(tier),
+      section = document.createElement('section');
+    section.className = `tier-section tier-${tier}${unlocked ? ' unlocked' : ' locked'}`;
+    const need = Math.max(0, threshold(tier) - learnedCount());
+    section.innerHTML = `<header><div><span>Tier ${toRoman(tier)}</span>${unlocked ? '' : `<strong>LOCKED</strong>`}</div><small>${unlocked ? 'OPEN' : `Spend ${need} more SP to unlock`} · ${classData().tierCounts[String(tier)]} investments</small></header>`;
+    const nodes = document.createElement('div');
+    nodes.className = 'tier-nodes';
+    classData()
+      .nodes.filter((n) => n.tier === tier)
+      .sort((a, b) => a.order - b.order)
+      .forEach((n) => nodes.append(createNode(n)));
+    section.append(nodes);
+    board.append(section);
+  }
+  root.append(board);
+  requestAnimationFrame(() => requestAnimationFrame(() => drawRelations(board)));
 }
-
-function toRoman(number) {
-  return ['', 'I', 'II', 'III', 'IV'][number] || number;
-}
-
-function edgePoint(element, canvas, edge) {
-  const rect = element.getBoundingClientRect();
-  const base = canvas.getBoundingClientRect();
-  const left = rect.left - base.left;
-  const top = rect.top - base.top;
-  if (edge === 'left') return [left, top + rect.height / 2];
-  if (edge === 'right') return [left + rect.width, top + rect.height / 2];
-  if (edge === 'top') return [left + rect.width / 2, top];
-  if (edge === 'bottom') return [left + rect.width / 2, top + rect.height];
-  return [left + rect.width / 2, top + rect.height / 2];
-}
-
-function drawRelations(canvas) {
-  const svg = canvas.querySelector('.relations');
+function drawRelations(board) {
+  const svg = board.querySelector('.relations');
   if (!svg) return;
-  canvas.querySelectorAll('.choice-label').forEach((el) => el.remove());
-
-  const width = canvas.scrollWidth;
-  const height = canvas.scrollHeight;
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
-  svg.innerHTML = `
-    <defs>
-      <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
-        <path d="M0,0 L8,4 L0,8 z"></path>
-      </marker>
-    </defs>`;
-
-  const set = selectedSet();
-  const nodeElement = (id) => canvas.querySelector(`.skill-node[data-id="${id}"]`);
-
-  classData().nodes.forEach((target) => {
-    (target.requires || []).forEach((sourceId) => {
-      const source = nodeElement(sourceId);
-      const destination = nodeElement(target.id);
-      if (!source || !destination) return;
-
-      const sourceRect = source.getBoundingClientRect();
-      const targetRect = destination.getBoundingClientRect();
-      const sameColumn = Math.abs(sourceRect.left - targetRect.left) < 20;
-      let pathData;
-
-      if (sameColumn) {
-        const start = edgePoint(source, canvas, 'right');
-        const end = edgePoint(destination, canvas, 'right');
-        const bracketX = Math.max(start[0], end[0]) + 22;
-        pathData = `M ${start[0]} ${start[1]} H ${bracketX} V ${end[1]} H ${end[0]}`;
-      } else {
-        const forward = targetRect.left > sourceRect.left;
-        const start = edgePoint(source, canvas, forward ? 'right' : 'left');
-        const end = edgePoint(destination, canvas, forward ? 'left' : 'right');
-        if (Math.abs(start[1] - end[1]) < 2) {
-          pathData = `M ${start[0]} ${start[1]} H ${end[0]}`;
-        } else {
-          const gutterX = start[0] + (forward ? 22 : -22);
-          pathData = `M ${start[0]} ${start[1]} H ${gutterX} V ${end[1]} H ${end[0]}`;
-        }
-      }
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', pathData);
-      path.classList.add('relation-path', 'prerequisite');
-      path.dataset.source = sourceId;
-      path.dataset.target = target.id;
-      if (set.has(sourceId)) path.classList.add('source-owned');
-      if (set.has(target.id)) path.classList.add('complete');
+  const box = board.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${board.scrollWidth} ${board.scrollHeight}`);
+  svg.setAttribute('width', board.scrollWidth);
+  svg.setAttribute('height', board.scrollHeight);
+  svg.innerHTML =
+    '<defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z"></path></marker></defs>';
+  const point = (el, edge) => {
+    const r = el.getBoundingClientRect();
+    return [r.left - box.left + r.width / 2, (edge === 'bottom' ? r.bottom : r.top) - box.top];
+  };
+  for (const target of classData().nodes)
+    for (const sourceId of target.requires || []) {
+      const a = board.querySelector(`[data-id="${sourceId}"]`),
+        b = board.querySelector(`[data-id="${target.id}"]`);
+      if (!a || !b) continue;
+      const start = point(a, 'bottom'),
+        end = point(b, 'top'),
+        mid = (start[1] + end[1]) / 2,
+        path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', `M${start[0]} ${start[1]} V${mid} H${end[0]} V${end[1]}`);
+      path.classList.add('relation-path');
+      if (learnedSet().has(sourceId)) path.classList.add('active');
       path.setAttribute('marker-end', 'url(#arrow)');
-      svg.appendChild(path);
-    });
-  });
-
-  const seen = new Set();
-  classData().nodes.forEach((node) => {
-    (node.exclusiveWith || []).forEach((otherId) => {
-      const key = [node.id, otherId].sort().join('::');
-      if (seen.has(key)) return;
-      seen.add(key);
-      const a = nodeElement(node.id);
-      const b = nodeElement(otherId);
-      if (!a || !b) return;
-
-      const ar = a.getBoundingClientRect();
-      const br = b.getBoundingClientRect();
-      const sameColumn = Math.abs(ar.left - br.left) < 20;
-      let pathData, labelX, labelY;
-
-      if (sameColumn) {
-        const aPoint = edgePoint(a, canvas, 'left');
-        const bPoint = edgePoint(b, canvas, 'left');
-        const bracketX = Math.min(aPoint[0], bPoint[0]) - 24;
-        pathData = `M ${aPoint[0]} ${aPoint[1]} H ${bracketX} V ${bPoint[1]} H ${bPoint[0]}`;
-        labelX = bracketX;
-        labelY = (aPoint[1] + bPoint[1]) / 2;
-      } else {
-        const forward = br.left > ar.left;
-        const aPoint = edgePoint(a, canvas, forward ? 'right' : 'left');
-        const bPoint = edgePoint(b, canvas, forward ? 'left' : 'right');
-        const midX = (aPoint[0] + bPoint[0]) / 2;
-        pathData = `M ${aPoint[0]} ${aPoint[1]} H ${midX} V ${bPoint[1]} H ${bPoint[0]}`;
-        labelX = midX;
-        labelY = (aPoint[1] + bPoint[1]) / 2;
-      }
-
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', pathData);
-      path.classList.add('relation-path', 'exclusive');
-      path.dataset.source = node.id;
-      path.dataset.target = otherId;
-      if (set.has(node.id) || set.has(otherId)) path.classList.add('choice-made');
-      svg.appendChild(path);
-
-      const label = document.createElement('div');
-      label.className = `choice-label${set.has(node.id) || set.has(otherId) ? ' choice-made' : ''}`;
-      label.textContent = 'CHOOSE ONE';
-      label.style.left = `${labelX}px`;
-      label.style.top = `${labelY}px`;
-      canvas.appendChild(label);
-    });
-  });
+      svg.append(path);
+    }
 }
-
-function emphasizeRelations(id, active) {
-  document
-    .querySelectorAll(
-      `.relation-path[data-source="${id}"], .relation-path[data-target="${id}"]`,
-    )
-    .forEach((path) => path.classList.toggle('emphasis', active));
-}
-
 function inspect(type, id) {
   inspected = { type, id };
   renderCore();
   document
     .querySelectorAll('.skill-node.inspected')
-    .forEach((el) => el.classList.remove('inspected'));
-  if (type === 'node')
-    document.querySelector(`.skill-node[data-id="${id}"]`)?.classList.add('inspected');
+    .forEach((x) => x.classList.remove('inspected'));
+  if (type === 'node') document.querySelector(`[data-id="${id}"]`)?.classList.add('inspected');
   renderInspector();
   document.getElementById('inspector').classList.add('open');
 }
-
+function severingProgress(item) {
+  const ids = ['severing-strike', 'severing-strike-stage-ii', 'severing-strike-stage-iii'];
+  if (!ids.includes(item.id)) return '';
+  const learned = learnedSet();
+  return `<div class="severing-progress" aria-label="Severing progression">${ids.map((id, i) => `${i ? '→' : ''}<span class="${learned.has(id) ? 'learned' : ''}${item.id === id ? ' current' : ''}"><b>${i + 1}/3</b><small>${learned.has(id) ? 'Learned' : 'Not learned'}</small></span>`).join('')}</div>`;
+}
+function technicalStrip(item) {
+  const allowed = ['Cooldown', 'Cast Time', 'Range', 'Resource Cost', 'Charges'],
+    fields = item.fields || {},
+    rows = allowed
+      .filter((key) => fields[key] && !/^(none|n\/a)$/i.test(fields[key]))
+      .map(
+        (key) =>
+          `<div><dt>${key}</dt><dd>${formatTaggedText(fields[key], item.keywords)}</dd></div>`,
+      )
+      .join('');
+  return rows ? `<dl class="technical-strip">${rows}</dl>` : '';
+}
+function detailMarkup(item, isCore, status) {
+  const prereq =
+    !isCore && (item.requiresNames || []).length
+      ? `<p class="prerequisite-note"><b>Requires:</b> ${item.requiresNames.join(' + ')}</p>`
+      : '';
+  return `<div class="detail-hero"><span class="detail-icon">${initials(item.name)}</span><div><div class="detail-meta"><span>${isCore ? 'Granted Core' : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${severingProgress(item)}${technicalStrip(item)}`;
+}
 function renderInspector() {
-  hideDebuffTooltip();
-  const content = document.getElementById('inspectorContent');
-  const inspector = document.getElementById('inspector');
+  hideKeywordTooltip();
+  const root = document.getElementById('inspectorContent'),
+    panel = document.getElementById('inspector');
   if (!inspected) {
-    inspector.classList.remove('open');
-    content.innerHTML = `
-      <div class="inspector-empty">
-        <div class="empty-glyph" aria-hidden="true">✦</div>
-        <h2>Inspect a skill</h2>
-        <p>Select any node to view its full description, requirements and build action.</p>
-      </div>`;
+    panel.classList.remove('open');
+    root.innerHTML =
+      '<div class="inspector-empty"><span>✦</span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
     return;
   }
-
   if (inspected.type === 'core') {
-    const core = classData().core.find((item) => item.id === inspected.id);
-    if (!core) {
+    const item = classData().core.find((x) => x.id === inspected.id);
+    if (!item) {
       inspected = null;
       return renderInspector();
     }
-    content.innerHTML = detailMarkup(core, true);
+    root.innerHTML = detailMarkup(item, true, { code: 'granted', label: 'Always available' });
     return;
   }
-
-  const node = byId(inspected.id);
-  if (!node) {
+  const item = byId(inspected.id);
+  if (!item) {
     inspected = null;
     return renderInspector();
   }
-  const check = availability(node);
-  const owned = selectedSet().has(node.id);
-  const actionText = owned ? 'Refund 1 SP' : `Learn for ${node.cost || 1} SP`;
-  const disabled = !owned && !check.ok;
-  content.innerHTML = `${detailMarkup(node, false)}
-    <div class="inspector-action-wrap">
-      ${disabled ? `<div class="action-reason">${escapeHtml(check.reason)}</div>` : ''}
-      <button class="primary-action${owned ? ' refund' : ''}" id="nodeAction" type="button" ${disabled ? 'disabled' : ''}>${escapeHtml(actionText)}</button>
-    </div>`;
-  document
-    .getElementById('nodeAction')
-    ?.addEventListener('click', () => togglePurchase(node.id));
+  const status = nodeState(item);
+  const reason = status.code === 'locked' ? `<p class="action-reason">${status.reason}</p>` : '';
+  const button =
+    status.code === 'available'
+      ? '<button class="primary-action" id="nodeAction" type="button">Learn</button>'
+      : `<button class="primary-action" type="button" disabled>${status.label}</button>`;
+  root.innerHTML =
+    detailMarkup(item, false, status) + `<div class="inspector-actions">${reason}${button}</div>`;
+  document.getElementById('nodeAction')?.addEventListener('click', () => learnNode(item));
 }
-
-function severingStageMarkup(item) {
-  const ids = [
-    'severing-strike',
-    'severing-strike-stage-ii',
-    'severing-strike-stage-iii',
-  ];
-  if (!ids.includes(item.id)) return '';
-  const learned = selectedSet();
-  return `<div class="severing-stages" aria-label="Severing hit progression">${ids.map((id, i) => `${i ? '<span aria-hidden="true">→</span>' : ''}<span class="severing-stage ${learned.has(id) ? 'available' : ''} ${item.id === id ? 'current' : ''}"><strong>${i + 1}/3</strong><small>${learned.has(id) ? 'Learned' : 'Not learned'}</small></span>`).join('')}</div>`;
-}
-
-function detailMarkup(item, isCore) {
-  const fields = item.fields || {};
-  const rows = Object.entries(fields)
-    .map(
-      ([key, value]) =>
-        `<div class="detail-row"><dt>${escapeHtml(key)}</dt><dd>${formatEffectText(value)}</dd></div>`,
-    )
-    .join('');
-  const relationBits = [];
-  if (!isCore && item.requiresNames?.length)
-    relationBits.push(
-      `<span>Requires ${escapeHtml(item.requiresNames.join(' + '))}</span>`,
-    );
-  if (!isCore && item.exclusiveNames?.length)
-    relationBits.push(
-      `<span>Exclusive with ${escapeHtml(item.exclusiveNames.join(', '))}</span>`,
-    );
-  const meta = isCore
-    ? `<span class="detail-chip">Granted Core</span><span class="detail-chip">0 Skill Points</span>`
-    : `<span class="detail-chip">Tier ${toRoman(item.tier)}</span><span class="detail-chip">${escapeHtml(semanticKind(item))}</span><span class="detail-chip">${item.cost || 1} Skill Point</span>`;
-
-  return `
-    <div class="detail-hero">
-      <div class="detail-icon">${escapeHtml(initials(item.name))}</div>
-      <div><div class="detail-meta">${meta}</div><h2>${escapeHtml(item.name)}</h2></div>
-    </div>
-    <p class="detail-short">${formatEffectText(item.short)}</p>
-    ${severingStageMarkup(item)}
-    <div class="detail-tooltip conditional-description">${formatConditionalDescription(item.tooltip || '')}</div>
-    ${relationBits.length ? `<div class="relation-notes">${relationBits.join('')}</div>` : ''}
-    ${rows ? `<details class="skill-specs"><summary>Technical specifications</summary><dl class="detail-table">${rows}</dl></details>` : ''}`;
-}
-
 function renderAppendix() {
-  const holder = document.getElementById('appendixHolder');
-  holder.innerHTML = '';
-  const appendix = classData().appendix || [];
-  if (!appendix.length) return;
+  const root = document.getElementById('appendixHolder'),
+    items = classData().appendix || [];
+  root.innerHTML = '';
+  if (!items.length) return;
   const details = document.createElement('details');
   details.className = 'appendix';
-  details.innerHTML = `<summary>Contextual / synthesis forms <span>${appendix.length}</span></summary>`;
-  const grid = document.createElement('div');
-  grid.className = 'appendix-grid';
-  appendix.forEach((item) => {
-    const card = document.createElement('article');
-    card.innerHTML = `<strong>${escapeHtml(item.name)}</strong><div class="conditional-description">${formatConditionalDescription(item.text)}</div>`;
-    grid.appendChild(card);
-  });
-  details.appendChild(grid);
-  holder.appendChild(details);
+  details.innerHTML = `<summary>Synthesis forms <span>${items.length}</span></summary><div class="appendix-grid">${items.map((x) => `<article><strong>${x.name}</strong>${formatDescription(x.text, x.keywords)}</article>`).join('')}</div>`;
+  root.append(details);
 }
-
 function renderAll() {
   renderTabs();
   renderBuildStatus();
@@ -700,33 +366,20 @@ function renderAll() {
   renderAppendix();
   renderInspector();
 }
-
-document.getElementById('resetClass').onclick = () => {
-  state[currentClass] = [];
-  saveState();
-  showNotice(`Reset Skill Points for ${currentClass}.`);
-  renderAll();
-};
-
-document.getElementById('resetAll').onclick = () => {
-  state = emptyState();
-  saveState();
-  showNotice('Reset all Primary builds.');
-  renderAll();
-};
-
+document.getElementById('resetClass').onclick = resetTree;
 document.getElementById('inspectorClose').onclick = () => {
   inspected = null;
   renderInspector();
   renderCore();
   document
     .querySelectorAll('.skill-node.inspected')
-    .forEach((el) => el.classList.remove('inspected'));
+    .forEach((x) => x.classList.remove('inspected'));
 };
-
-window.addEventListener('resize', () => {
-  const canvas = document.querySelector('.tree-canvas');
-  if (canvas) requestAnimationFrame(() => drawRelations(canvas));
+document.getElementById('confirmDialog').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) e.currentTarget.close();
 });
-
+window.addEventListener('resize', () => {
+  const board = document.querySelector('.vertical-tree');
+  if (board) requestAnimationFrame(() => drawRelations(board));
+});
 renderAll();

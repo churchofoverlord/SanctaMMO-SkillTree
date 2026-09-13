@@ -113,3 +113,129 @@ assert(
 console.log(
   'QA PASS: 4 classes, 80 investments, tier rules, references, exclusivity and required Fighter/Mage chains validated.',
 );
+
+const expectedNames = {
+  Fighter: [
+    'Severing Strike I',
+    'Piercing Strike I',
+    'Shoulder Rush I',
+    'Crushing Blow I',
+    'Battlecry / Challenge I',
+    'Pressure / Provoke',
+    'Second Wind',
+    'Severing Strike II',
+    'Shoulder Rush II',
+    'Crushing Blow II',
+    'Chains I',
+    'War Leap',
+    'Rally I',
+    'Severing Strike III',
+    'Chains II',
+    'Piercing Strike II',
+    'Defiant Presence',
+    'Battlecry / Challenge II',
+    'Momentum Mastery',
+    'Rally II',
+  ],
+  Scout: [
+    'Exploit Weakness I',
+    'Quickstep I',
+    'Rapid Attack',
+    'Backstab I',
+    'Torpor',
+    'Blinding Dart',
+    'Volley I',
+    'Exploit Weakness II',
+    'Quickstep II',
+    'Long Jump',
+    'Evasion',
+    'Sand Shot',
+    'Vine Field I',
+    'Backstab II',
+    'Smoke Bomb I',
+    'Vine Field II',
+    'Volley II',
+    'Sickness',
+    'Exploit Weakness III',
+    'Smoke Bomb II',
+  ],
+  Mage: [
+    'Fire Bolt I',
+    'Combust I',
+    'Frost Lance I',
+    'Glacial Spike I',
+    'Static Bolt I',
+    'Thunderstrike I',
+    'Blink',
+    'Fire Bolt II',
+    'Combust II',
+    'Frost Lance II',
+    'Glacial Spike II',
+    'Thunderstrike II',
+    'Mana Barrier I',
+    'Static Bolt II',
+    'Mana Barrier II',
+    'Arcane Weaving I',
+    'Elemental Weaver I',
+    'Arcane Weaving II',
+    'Elemental Weaver II',
+    'Mana Storm',
+  ],
+  Mystic: [
+    'Ether I',
+    'Spirit of the Orbit',
+    'Cosmic Ray I',
+    'Connection I',
+    'Lullaby I',
+    'Astral Aura',
+    'Astral Step',
+    'Ether II',
+    'Resurrect',
+    'Spirit of the Star',
+    'Cosmic Ray II',
+    'Serenity',
+    'Astral Pull',
+    'Spirit of the Comet',
+    'Lullaby II',
+    'Black Hole I',
+    'Astral Veil',
+    'Eclipse',
+    'Connection II',
+    'Black Hole II',
+  ],
+};
+const forbiddenPlayerCopy =
+  /authoritative|Skill\s?Execution|ResolveAt|MaxStacks|pre-existing|qualifying|admitted|admission|concrete Root|internal EffectType/i;
+for (const [name, data] of Object.entries(DATA)) {
+  assert(data.core.length === 3, `${name}: expected exactly 3 Granted/Core slots`);
+  assert(
+    JSON.stringify(data.nodes.map((node) => node.name)) === JSON.stringify(expectedNames[name]),
+    `${name}: node names or canonical tier order differ from simulator reference`,
+  );
+  assert(
+    JSON.stringify(data.nodes.map((node) => node.order)) ===
+      JSON.stringify([1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 1, 2, 3]),
+    `${name}: within-tier order is incorrect`,
+  );
+  for (const node of data.nodes) {
+    assert(
+      node.description && !node.short && !node.tooltip,
+      `${name}/${node.name}: description layers are not normalized`,
+    );
+    assert(
+      Array.isArray(node.keywords),
+      `${name}/${node.name}: explicit semantic keyword metadata missing`,
+    );
+    assert(
+      !forbiddenPlayerCopy.test(node.description),
+      `${name}/${node.name}: runtime wording leaked into player copy`,
+    );
+    assert(
+      !/(heavy|powerful|burst|negligible|normal) damage/i.test(node.description),
+      `${name}/${node.name}: qualitative damage wording is forbidden`,
+    );
+  }
+}
+console.log(
+  'SIMULATOR REFERENCE PASS: names, order, descriptions, core slots and explicit semantic tags validated.',
+);

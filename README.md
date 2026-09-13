@@ -1,21 +1,19 @@
 # SanctaMMO Primary Skill Tree Simulator
 
-Public static simulator for the four current SanctaMMO Primary class trees.
+Public static simulator for the current Fighter, Scout, Mage and Mystic Primary Skill Trees.
 
-Current framework:
+The implementation follows **SanctaMMO - Skill Tree Simulator Reference**:
 
-- Fighter, Scout, Mage and Mystic
-- 20 available investments per Primary
-- 13 maximum Skill Points
-- Tier thresholds: 0 / 5 / 9 / 11 cumulative SP invested
-- Tier pools: 7 / 6 / 4 / 3
-- Authored prerequisites and branch exclusions enforced
-- Single-click skills to inspect; double-click to learn/refund
-- Reset Skill Points clears the current class; Reset all clears all classes
-- Locked tiers show the remaining SP needed to unlock
-- Conditional effects displayed in labelled description blocks
-- No skill icons/images yet
+- 20 purchasable investments per class and a maximum allocation of 13 Skill Points;
+- vertical tiers with thresholds at 0 / 5 / 9 / 11 learned nodes;
+- canonical left-to-right order within each tier;
+- three Granted/Core family slots per class;
+- authored prerequisites and Mage specialization exclusivity;
+- node click opens Skill Detail without spending points;
+- purchases happen through the Learn button, with confirmation for exclusive specializations;
+- one confirmed full-tree reset and no individual refunds;
+- square node icons with explicit Available, Locked, Learned and inspected states;
+- concrete lock reasons;
+- player-facing descriptions, compact technical fields and explicit semantic keyword tags.
 
-The simulator is a presentation/testing surface for the current design. Canonical project documentation remains authoritative.
-
-Development checks: run `node qa.mjs` from the repository root. The site uses plain HTML, CSS and JavaScript without a build step. Class data lives in `data/`; progression and rendering in `app.js`; conditional description formatting in `description-format.js`.
+Run `node qa.mjs` from the repository root. The site uses plain HTML, CSS and JavaScript without a build step.
