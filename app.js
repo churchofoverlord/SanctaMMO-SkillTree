@@ -353,7 +353,7 @@ function renderTree(){
     const unlocked = tierUnlocked(tier);
     head.className = `tier-head${unlocked ? ' unlocked' : ''}`;
     head.innerHTML = `
-      <div class="tier-title"><span>Tier ${toRoman(tier)}</span><b>${tier === 1 ? 'OPEN' : `${threshold(tier)} SP`}</b></div>
+      <div class="tier-title"><span>Tier ${toRoman(tier)}${unlocked ? '' : ' <strong class="tier-locked">LOCKED</strong>'}</span><b>${tier === 1 ? 'OPEN' : `${threshold(tier)} SP`}</b></div>
       <small>${data.tierCounts[String(tier)]} investments</small>`;
     heads.appendChild(head);
   }
