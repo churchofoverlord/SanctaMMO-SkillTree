@@ -1,11 +1,50 @@
-.conditional-description{display:grid;gap:9px}
-.conditional-description .effect-common{margin:0;color:#d3deed;line-height:1.55}
-.conditional-description .effect-common-after{padding-top:2px;color:#b8c9de}
-.effect-variants{display:grid;gap:7px}
-.effect-variant{margin:0;padding:8px 9px 8px 10px;border-left:2px solid color-mix(in srgb,var(--accent) 62%,#58697f);border-radius:0 7px 7px 0;background:linear-gradient(90deg,var(--accent-soft),rgba(255,255,255,.012) 62%,transparent);color:#cbd4de;line-height:1.52}
-.effect-label{display:block;margin-bottom:3px;color:color-mix(in srgb,var(--accent) 72%,white 28%);font-size:12px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
+.conditional-description {
+  display: grid;
+  gap: 9px;
+}
+.conditional-description .effect-common {
+  margin: 0;
+  color: #d3deed;
+  line-height: 1.55;
+}
+.conditional-description .effect-common-after {
+  padding-top: 2px;
+  color: #b8c9de;
+}
+.effect-variants {
+  display: grid;
+  gap: 7px;
+}
+.effect-variant {
+  margin: 0;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 62%, #58697f);
+  border-radius: 0 7px 7px 0;
+  line-height: 1.52;
+}
+.effect-label {
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
 
 /* Complementary colours distinguish conditional effects without relying on colour alone. */
-.effect-variant { --effect-color:#ffc980; border-left-color:var(--effect-color); background:linear-gradient(90deg,color-mix(in srgb,var(--effect-color) 13%,transparent),transparent); color:#e0e8f4; padding:11px 12px; }
-.effect-variant:nth-child(even) { --effect-color:#b7adff; }
-.effect-label { color:var(--effect-color); font-size:12px; letter-spacing:.06em; }
+.effect-variant {
+  --effect-color: #ffc980;
+  border-left-color: var(--effect-color);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--effect-color) 13%, transparent),
+    transparent
+  );
+  color: #e0e8f4;
+  padding: 11px 12px;
+}
+.effect-variant:nth-child(even) {
+  --effect-color: #b7adff;
+}
+.effect-label {
+  color: var(--effect-color);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}

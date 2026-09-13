@@ -1,114 +1,111 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<title>SanctaMMO — Primary Skill Trees</title>
-<link rel="stylesheet" href="styles.css?v=reset-skill-points-1">
-<link rel="stylesheet" href="description-format.css">
-</head>
-<body data-class="fighter">
-<div class="app-shell">
-  <header class="topbar">
-    <div class="brand-block">
-      <div class="brand-mark" aria-hidden="true">S</div>
-      <div>
-        <div class="eyebrow">SanctaMMO</div>
-        <h1>Primary Skill Trees</h1>
-      </div>
-    </div>
-    <nav class="class-tabs" id="classTabs" aria-label="Primary classes"></nav>
-  </header>
-
-  <section class="build-panel" aria-label="Build status">
-    <div class="class-summary">
-      <div>
-        <div class="current-class" id="currentClass">Fighter</div>
-        <div class="role" id="role"></div>
-      </div>
-      <div class="sp-summary">
-        <strong><span id="spent">0</span><em>/13</em></strong>
-        <span>Skill Points</span>
-      </div>
-    </div>
-
-    <div class="progress-wrap">
-      <div class="progress-rail" aria-label="Skill Point progression">
-        <div class="progress-fill" id="progressFill"></div>
-        <div class="milestones" id="milestones"></div>
-      </div>
-      <div class="build-actions">
-        <span id="remaining">13 SP remaining</span>
-        <button class="text-btn subtle" id="resetAll" type="button">Reset all</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="core-section" aria-labelledby="coreTitle">
-    <div class="section-heading">
-      <div>
-        <span class="section-kicker">Always available</span>
-        <h2 id="coreTitle">Granted Core</h2>
-      </div>
-      <span class="zero-cost">0 SP</span>
-    </div>
-    <div class="core-strip" id="grantedGrid"></div>
-  </section>
-
-  <div class="skill-reset-bar">
-    <button class="skill-reset-button" id="resetClass" type="button">Reset Skill Points</button>
-  </div>
-
-  <main class="workspace">
-    <section class="tree-region" aria-label="Primary skill tree">
-      <div class="tree-toolbar">
-        <div class="legend" aria-label="Relation legend">
-          <span><i class="legend-line prerequisite"></i>Prerequisite</span>
-          <span><i class="legend-line exclusive"></i>Exclusive choice</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <title>SanctaMMO — Primary Skill Trees</title>
+    <link rel="stylesheet" href="styles.css?v=cleanup-1" />
+    <link rel="stylesheet" href="description-format.css?v=cleanup-1" />
+  </head>
+  <body data-class="fighter">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">S</div>
+          <div>
+            <div class="eyebrow">SanctaMMO</div>
+            <h1>Primary Skill Trees</h1>
+          </div>
         </div>
-        <span class="scroll-hint">Swipe / scroll horizontally to explore tiers →</span>
-      </div>
-      <div class="tree-shell" id="treeShell">
-        <div class="tree" id="tree"></div>
-      </div>
-      <div class="notice" id="notice" aria-live="polite"></div>
-      <div id="appendixHolder"></div>
-    </section>
+        <nav class="class-tabs" id="classTabs" aria-label="Primary classes"></nav>
+      </header>
 
-    <aside class="inspector" id="inspector" aria-live="polite" aria-label="Skill details">
-      <button class="inspector-close" id="inspectorClose" type="button" aria-label="Close skill details">×</button>
-      <div id="inspectorContent" class="inspector-content">
-        <div class="inspector-empty">
-          <div class="empty-glyph" aria-hidden="true">✦</div>
-          <h2>Inspect a skill</h2>
-          <p>Select any node to view its full description, requirements and build action.</p>
+      <section class="build-panel" aria-label="Build status">
+        <div class="class-summary">
+          <div>
+            <div class="current-class" id="currentClass">Fighter</div>
+            <div class="role" id="role"></div>
+          </div>
+          <div class="sp-summary">
+            <strong><span id="spent">0</span><em>/13</em></strong>
+            <span>Skill Points</span>
+          </div>
         </div>
+
+        <div class="progress-wrap">
+          <div class="progress-rail" aria-label="Skill Point progression">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="milestones" id="milestones"></div>
+          </div>
+          <div class="build-actions">
+            <span id="remaining">13 SP remaining</span>
+            <button class="text-btn subtle" id="resetAll" type="button">Reset all</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="core-section" aria-labelledby="coreTitle">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Always available</span>
+            <h2 id="coreTitle">Granted Core</h2>
+          </div>
+          <span class="zero-cost">0 SP</span>
+        </div>
+        <div class="core-strip" id="grantedGrid"></div>
+      </section>
+
+      <div class="skill-reset-bar">
+        <button class="skill-reset-button" id="resetClass" type="button">Reset Skill Points</button>
       </div>
-    </aside>
-  </main>
 
-  <footer>
-    <span>Basic Attack is a Universal Action.</span>
-    <span>Canonical project documents remain authoritative.</span>
-  </footer>
-</div>
+      <main class="workspace">
+        <section class="tree-region" aria-label="Primary skill tree">
+          <div class="tree-toolbar">
+            <div class="legend" aria-label="Relation legend">
+              <span><i class="legend-line prerequisite"></i>Prerequisite</span>
+              <span><i class="legend-line exclusive"></i>Exclusive choice</span>
+            </div>
+            <span class="scroll-hint">Swipe / scroll horizontally to explore tiers →</span>
+          </div>
+          <div class="tree-shell" id="treeShell">
+            <div class="tree" id="tree"></div>
+          </div>
+          <div class="notice" id="notice" aria-live="polite"></div>
+          <div id="appendixHolder"></div>
+        </section>
 
-<script src="data/fighter.js"></script>
-<script src="data/scout.js"></script>
-<script src="data/mage.js"></script>
-<script src="data/mystic.js"></script>
-<script src="app.js?v=unlock-label-2"></script>
-<script src="description-format.js"></script>
-<script>
-  (() => {
-    const requested = new URLSearchParams(window.location.search).get('class');
-    if (requested && window.SKILL_TREE_DATA?.[requested] && requested !== currentClass) {
-      currentClass = requested;
-      inspected = null;
-      renderAll();
-    }
-  })();
-</script>
-</body>
+        <aside class="inspector" id="inspector" aria-live="polite" aria-label="Skill details">
+          <button
+            class="inspector-close"
+            id="inspectorClose"
+            type="button"
+            aria-label="Close skill details"
+          >
+            ×
+          </button>
+          <div id="inspectorContent" class="inspector-content">
+            <div class="inspector-empty">
+              <div class="empty-glyph" aria-hidden="true">✦</div>
+              <h2>Inspect a skill</h2>
+              <p>Select any node to view its full description, requirements and build action.</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <footer>
+        <span>Basic Attack is a Universal Action.</span>
+        <span>Canonical project documents remain authoritative.</span>
+      </footer>
+    </div>
+
+    <script src="data/fighter.js"></script>
+    <script src="data/scout.js"></script>
+    <script src="data/mage.js"></script>
+    <script src="data/mystic.js"></script>
+    <script src="description-format.js?v=cleanup-1"></script>
+    <script src="app.js?v=cleanup-1"></script>
+  </body>
 </html>
