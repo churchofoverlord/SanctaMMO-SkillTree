@@ -161,3 +161,8 @@ body::before { content:none; }
 /* Explicit locked-tier label beside the tier name. */
 .tier-title > span { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .tier-title .tier-locked { color:#ff5555; font-size:13px; font-weight:900; letter-spacing:.02em; }
+
+/* Accessible reset action between granted skills and the tier board. */
+.skill-reset-bar { display:flex; justify-content:flex-end; margin-top:12px; }
+.skill-reset-button { min-height:44px; padding:10px 18px; border:1px solid #ef7777; border-radius:9px; background:#291316; color:#ffb0b0; font-size:15px; font-weight:800; cursor:pointer; }
+.skill-reset-button:hover { background:#442027; color:#fff; }
