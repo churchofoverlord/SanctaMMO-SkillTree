@@ -148,3 +148,9 @@ footer { color:#a1b3cd; }
   .topbar { min-height:0; }
   .build-panel { gap:16px; }
 }
+
+/* Solid black page background. */
+:root { --bg:#000; }
+html, body { background:#000; }
+body::before { content:none; }
+.topbar { background:#000; }
