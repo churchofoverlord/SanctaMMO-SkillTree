@@ -1398,7 +1398,7 @@ body::before {
 /* Accessible reset action between granted skills and the tier board. */
 .skill-reset-bar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-top: 12px;
 }
 .skill-reset-button {
