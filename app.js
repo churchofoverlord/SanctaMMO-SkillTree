@@ -315,7 +315,7 @@ function createNode(node){
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
   button.title = node.short || node.name;
-  button.setAttribute('aria-label', `${node.name}. ${availability(node).reason}. Select for details.`);
+  button.setAttribute('aria-label', `${node.name}. ${availability(node).reason}. Select for details. Double-click to learn or refund.`);
   button.innerHTML = `
     <span class="node-icon">${escapeHtml(initials(node.name))}</span>
     <span class="node-copy">
@@ -325,6 +325,10 @@ function createNode(node){
     <span class="node-cost">${node.cost || 1}<em>SP</em></span>
     <span class="state-mark" aria-hidden="true"></span>`;
   button.onclick = () => inspect('node', node.id);
+  button.addEventListener('dblclick', event => {
+    event.preventDefault();
+    togglePurchase(node.id);
+  });
   button.addEventListener('mouseenter', () => emphasizeRelations(node.id, true));
   button.addEventListener('mouseleave', () => emphasizeRelations(node.id, false));
   button.addEventListener('focus', () => emphasizeRelations(node.id, true));
