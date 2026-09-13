@@ -1,4 +1,6 @@
-// Player-facing Debuff vocabulary: 03 - Game Systems Design, Status Effect Contract.
+// Combat keyword UI contract: 08 - Sync Queue & Block Closures, Player-Facing Skill Tooltip & Combat Keyword UI Contract.
+// https://docs.google.com/document/d/1PUi-XR-MSUI7G7EhE_hsE6xftZr6jfYQR4xlwo6PVRk/edit
+// Existing negative-effect definitions: 03 - Game Systems Design, Status Effect Contract.
 // Source: https://docs.google.com/document/d/1CDItLiI3h9DLRtviggErN5GIxodeYKFbfuZrQGeWmzk/edit
 const DEBUFFS = [
   {
@@ -25,12 +27,13 @@ const DEBUFFS = [
     name: 'Wounded',
     aliases: ['HealingReceivedDown', 'Healing Received Down'],
     effect:
-      'Reduces healing received, including direct heals, healing over time and lifesteal. Does not reduce natural HP or MP regeneration.',
+      'Reduces healing received from direct heals, HoT and Omnivamp. Does not affect natural HP regeneration or Regeneration. Healing effectiveness cannot fall below 0%.',
   },
   {
     name: 'Breached',
     aliases: ['ShieldReceivedDown', 'Shield Received Down'],
-    effect: 'Reduces the amount of newly received Shields. Does not change Shields already active.',
+    effect:
+      'Reduces the amount of newly received Shields. Does not change Shields already active.',
   },
   {
     name: 'Sickened',
@@ -54,7 +57,12 @@ const DEBUFFS = [
   },
   {
     name: 'Dazed',
-    aliases: ['CastingSpeedDown', 'Casting Speed Down', 'CastSpeedDown', 'Cast Speed Down'],
+    aliases: [
+      'CastingSpeedDown',
+      'Casting Speed Down',
+      'CastSpeedDown',
+      'Cast Speed Down',
+    ],
     effect: 'Reduces Casting Speed.',
   },
   {
@@ -65,7 +73,7 @@ const DEBUFFS = [
   {
     name: 'Blind',
     aliases: ['AccuracyDown', 'Accuracy Down'],
-    effect: 'Sets final Accuracy to 0 while active, after ordinary Accuracy modifiers.',
+    effect: 'Sets Accuracy to 0 while active.',
   },
 ];
 const BUFFS = [
@@ -191,9 +199,72 @@ const BUFFS = [
     kind: 'buff',
   },
 ];
+BUFFS.push(
+  {
+    name: 'Grace',
+    aliases: ['HealingReceivedUp', 'Healing Received Up'],
+    effect: 'Increases healing received from direct heals, HoT and Omnivamp.',
+    kind: 'buff',
+  },
+  {
+    name: 'Aegis',
+    aliases: ['ShieldReceivedUp', 'Shield Received Up'],
+    effect: 'Increases the amount of Shields received.',
+    kind: 'buff',
+  },
+  {
+    name: 'Omnivamp',
+    aliases: ['VampUp', 'Vamp Up'],
+    effect:
+      'Restores HP equal to a percentage of eligible Physical and Magical Damage you deal. This is healing, not HP regeneration.',
+    kind: 'buff',
+  },
+  {
+    name: 'Rewind',
+    aliases: [
+      'CDR Up',
+      'CDRUp',
+      'PhysicalCDRUp',
+      'MagicalCDRUp',
+      'Physical CDR Up',
+      'Magical CDR Up',
+    ],
+    effect: 'Increases cooldown reduction for both Physical and Magical Skills.',
+    kind: 'buff',
+  },
+  {
+    name: 'Enmity',
+    aliases: ['ThreatGenerationUp', 'Threat Generation Up'],
+    effect: 'Increases Threat generated against enemies.',
+    kind: 'buff',
+  },
+  {
+    name: 'Surge',
+    aliases: [],
+    effect:
+      'Increases outgoing damage by 100%. In Mana Storm, applies to Skills begun inside the field, even after leaving. Does not increase healing, Shields or other non-damage effects.',
+    kind: 'buff',
+  },
+  {
+    name: 'Strain',
+    aliases: [],
+    effect:
+      'Increases MP costs by 100%. In Mana Storm, applies to Skills begun inside the field.',
+    kind: 'buff',
+  },
+);
+const EFFECT_CATEGORIES = {
+  buff: 'Buff',
+  hot: 'HoT',
+  shield: 'Shield',
+  dot: 'DoT',
+  debuff: 'Debuff',
+  cc: 'CC',
+  utility: 'Combat action',
+};
 const STATUS_EFFECTS = [
   ...BUFFS,
-  ...DEBUFFS,
+  ...DEBUFFS.map((entry) => ({ ...entry, kind: 'debuff' })),
   ...[
     {
       name: 'Stun',
@@ -203,7 +274,8 @@ const STATUS_EFFECTS = [
     },
     {
       name: 'Root',
-      aliases: [],
+      aliases: ['Rooted'],
+      forms: ['Rooted'],
       effect:
         'Blocks voluntary movement and facing, Dodge, Sprint and starting movement skills. Blocks teleport relocation while active. Ordinary non-movement skills, Basic Attacks and Guard remain available. Does not cancel a dash or leap already underway, or prevent Forced Displacement.',
     },
@@ -239,11 +311,14 @@ const STATUS_EFFECTS = [
     },
     {
       name: 'Interrupt',
-      aliases: [],
+      aliases: ['Interrupts'],
+      forms: ['Interrupts'],
+      kind: 'utility',
       effect:
         'Instantly cancels an active cast, channel or Basic Attack and clears the current selected target. Has no duration and does not erase PvE threat.',
     },
     {
+      kind: 'utility',
       name: 'Forced Displacement',
       aliases: ['ForcedDisplacement'],
       effect:
@@ -256,42 +331,49 @@ const STATUS_EFFECTS = [
         'Crowd Control: Stun, Root, Silence, Disarm, Fear, Sleep and Taunt restrict actions or control. Cleanse removes persistent CC and Tenacity shortens its duration. Same-type reapplication does not extend active CC. Slow and Blind are Debuffs instead.',
     },
     {
+      kind: 'dot',
       name: 'DoT',
       aliases: ['DoTs', 'Damage over Time'],
       effect:
-        'Damage over time: deals damage at fixed intervals, using current relevant stats at each tick. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+        'Damage over time: deals damage at fixed intervals, based on current stats. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
     },
     {
+      kind: 'hot',
       name: 'HoT',
       aliases: ['HoTs', 'Healing over Time', 'Heal over Time'],
       effect:
-        'Healing over time: restores HP at fixed intervals, using current relevant stats at each tick. Cannot critically heal. Wounded reduces the healing received. Not removed by Cleanse or shortened by Tenacity.',
+        'Healing over time: restores HP at fixed intervals, based on current stats. Cannot critically heal. Wounded reduces the healing received. Not removed by Cleanse or shortened by Tenacity.',
     },
     {
+      kind: 'dot',
       name: 'Bleed',
       aliases: [],
       effect:
-        'Damage-over-time effect. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+        'Damage-over-time effect. Deals damage periodically. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
     },
     {
+      kind: 'dot',
       name: 'Poison',
       aliases: [],
       effect:
-        'Damage-over-time effect. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+        'Damage-over-time effect. Deals damage periodically. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
     },
     {
+      kind: 'dot',
       name: 'Burn',
       aliases: [],
       effect:
-        'Damage-over-time effect applied by eligible Fire skills in Manifest. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+        'Damage-over-time effect applied by eligible Fire skills in Manifest. Deals damage periodically. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
     },
     {
       name: 'Bliss',
       aliases: [],
+      kind: 'buff',
       effect:
-        'Healing-over-time effect produced by Connection and Ritual. Restores HP periodically; Wounded reduces the healing received. Connection ends its own effect if the tether breaks.',
+        'A distinct Buff produced by Connection and Ritual that restores HP over time. Wounded reduces the healing received. Connection ends its own Bliss when the tether breaks.',
     },
     {
+      kind: 'dot',
       name: 'Curse',
       aliases: [],
       effect:
@@ -299,6 +381,32 @@ const STATUS_EFFECTS = [
     },
   ],
 ];
+STATUS_EFFECTS.push(
+  {
+    name: 'Shield',
+    aliases: ['Shields'],
+    forms: ['Shields'],
+    kind: 'shield',
+    effect: 'Absorbs incoming damage before HP is lost.',
+  },
+  {
+    name: 'Buff',
+    aliases: ['Buffs'],
+    forms: ['Buffs'],
+    kind: 'buff',
+    effect:
+      'A positive effect. For the same Buff type, a stronger effect replaces a weaker one, an equal effect refreshes its duration, and a weaker effect is ignored. Different Buff types coexist. Cleanse does not remove Buffs. Buffs remain after their caster dies or moves away unless tied to their source or an Aura.',
+  },
+  {
+    name: 'Debuff',
+    aliases: ['Debuffs'],
+    forms: ['Debuffs'],
+    kind: 'debuff',
+    effect:
+      'A harmful effect that weakens a stat. Cleanse removes Debuffs and Tenacity shortens their duration. An equal Debuff does not refresh one already active.',
+  },
+);
+for (const entry of STATUS_EFFECTS) entry.kind ||= 'cc';
 const debuffByTerm = new Map(
   STATUS_EFFECTS.flatMap((entry) =>
     [entry.name, ...entry.aliases].map((term) => [term.toLowerCase(), entry]),
@@ -341,7 +449,7 @@ function normalizeDebuffNames(text) {
     .replace(/\bSlows\b/g, 'applies Slow to')
     .replace(/\bStuns\b/g, 'applies Stun to')
     .replace(/\bRoots\b/g, 'applies Root to')
-    .replace(/\bInterrupts\b/g, 'applies Interrupt to')
+
     .replace(/\bBlinds\b/g, 'applies Blind to')
     .replace(/\benemies already Silenced\b/g, 'enemies with Silence')
     .replace(/\balready Stunned\b/g, 'affected by Stun')
@@ -351,7 +459,10 @@ function normalizeDebuffNames(text) {
     .replace(/\bare Silenced\b/g, 'receive Silence')
     .replace(/\bthe Rooted target\b/g, 'the target with Root')
     .replace(/\ba Sleeping enemy\b/g, 'an enemy with Sleep')
-    .replace(debuffPattern, (term) => statusEntry(term)?.name || term)
+    .replace(debuffPattern, (term) => {
+      const entry = statusEntry(term);
+      return entry?.forms?.includes(term) ? term : entry?.name || term;
+    })
     .replace(/\bSlow\/Slow\b/g, 'Slow');
 }
 
@@ -364,7 +475,7 @@ function formatEffectText(text) {
     if (!entry) continue;
     parts.push(escapeHtml(normalized.slice(end, match.index)));
     parts.push(
-      `<button type="button" class="debuff-term${entry.kind === 'buff' ? ' buff-term' : ''}" data-debuff="${entry.name}">${entry.name}</button>`,
+      `<button type="button" class="debuff-term ${entry.kind === 'debuff' ? '' : entry.kind + '-term'}" data-debuff="${entry.name}" aria-label="${escapeHtml(match[0])} — ${EFFECT_CATEGORIES[entry.kind]}">${escapeHtml(match[0])}</button>`,
     );
     end = match.index + match[0].length;
   }
@@ -393,7 +504,8 @@ function showDebuffTooltip(button) {
   hideDebuffTooltip();
   activeDebuff = button;
   button.setAttribute('aria-describedby', debuffTooltip.id);
-  debuffTooltip.textContent = `${entry.name}: ${entry.effect}`;
+  debuffTooltip.textContent = `${entry.name} — ${EFFECT_CATEGORIES[entry.kind]}: ${entry.effect}`;
+  debuffTooltip.dataset.category = entry.kind;
   debuffTooltip.hidden = false;
   const rect = button.getBoundingClientRect();
   const tip = debuffTooltip.getBoundingClientRect();

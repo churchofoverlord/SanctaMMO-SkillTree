@@ -2,11 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <meta name="theme-color" content="#000000" />
     <title>SanctaMMO — Primary Skill Trees</title>
-    <link rel="stylesheet" href="styles.css?v=buffs-1" />
-    <link rel="stylesheet" href="description-format.css?v=cleanup-1" />
+    <link rel="stylesheet" href="styles.css?v=ui08-1" />
+    <link rel="stylesheet" href="description-format.css?v=ui08-1" />
   </head>
   <body data-class="fighter">
     <div class="app-shell">
@@ -57,7 +60,9 @@
       </section>
 
       <div class="skill-reset-bar">
-        <button class="skill-reset-button" id="resetClass" type="button">Reset Skill Points</button>
+        <button class="skill-reset-button" id="resetClass" type="button">
+          Reset Skill Points
+        </button>
       </div>
 
       <main class="workspace">
@@ -67,7 +72,59 @@
               <span><i class="legend-line prerequisite"></i>Prerequisite</span>
               <span><i class="legend-line exclusive"></i>Exclusive choice</span>
             </div>
-            <span class="scroll-hint">Swipe / scroll horizontally to explore tiers →</span>
+            <span class="scroll-hint"
+              >Swipe / scroll horizontally to explore tiers →</span
+            >
+          </div>
+          <div class="keyword-legend" aria-label="Combat keyword categories">
+            <button
+              type="button"
+              class="debuff-term buff-term"
+              data-debuff="Buff"
+              aria-label="Buff — effect category"
+            >
+              Buff
+            </button>
+            <button
+              type="button"
+              class="debuff-term hot-term"
+              data-debuff="HoT"
+              aria-label="HoT — effect category"
+            >
+              HoT
+            </button>
+            <button
+              type="button"
+              class="debuff-term shield-term"
+              data-debuff="Shield"
+              aria-label="Shield — effect category"
+            >
+              Shield
+            </button>
+            <button
+              type="button"
+              class="debuff-term dot-term"
+              data-debuff="DoT"
+              aria-label="DoT — effect category"
+            >
+              DoT
+            </button>
+            <button
+              type="button"
+              class="debuff-term"
+              data-debuff="Debuff"
+              aria-label="Debuff — effect category"
+            >
+              Debuff
+            </button>
+            <button
+              type="button"
+              class="debuff-term cc-term"
+              data-debuff="CC"
+              aria-label="CC — effect category"
+            >
+              CC
+            </button>
           </div>
           <div class="tree-shell" id="treeShell">
             <div class="tree" id="tree"></div>
@@ -76,7 +133,12 @@
           <div id="appendixHolder"></div>
         </section>
 
-        <aside class="inspector" id="inspector" aria-live="polite" aria-label="Skill details">
+        <aside
+          class="inspector"
+          id="inspector"
+          aria-live="polite"
+          aria-label="Skill details"
+        >
           <button
             class="inspector-close"
             id="inspectorClose"
@@ -89,7 +151,10 @@
             <div class="inspector-empty">
               <div class="empty-glyph" aria-hidden="true">✦</div>
               <h2>Inspect a skill</h2>
-              <p>Select any node to view its full description, requirements and build action.</p>
+              <p>
+                Select any node to view its full description, requirements and build
+                action.
+              </p>
             </div>
           </div>
         </aside>
@@ -101,12 +166,12 @@
       </footer>
     </div>
 
-    <script src="data/fighter.js"></script>
-    <script src="data/scout.js"></script>
-    <script src="data/mage.js"></script>
-    <script src="data/mystic.js"></script>
-    <script src="debuff-tooltips.js?v=buffs-1"></script>
-    <script src="description-format.js?v=buffs-1"></script>
-    <script src="app.js?v=debuffs-1"></script>
+    <script src="data/fighter.js?v=ui08-1"></script>
+    <script src="data/scout.js?v=ui08-1"></script>
+    <script src="data/mage.js?v=ui08-1"></script>
+    <script src="data/mystic.js?v=ui08-1"></script>
+    <script src="debuff-tooltips.js?v=ui08-1"></script>
+    <script src="description-format.js?v=ui08-1"></script>
+    <script src="app.js?v=ui08-1"></script>
   </body>
 </html>

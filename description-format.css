@@ -7,44 +7,27 @@
   color: #d3deed;
   line-height: 1.55;
 }
-.conditional-description .effect-common-after {
-  padding-top: 2px;
-  color: #b8c9de;
-}
-.effect-variants {
-  display: grid;
-  gap: 7px;
-}
-.effect-variant {
-  margin: 0;
-  border-left: 2px solid color-mix(in srgb, var(--accent) 62%, #58697f);
-  border-radius: 0 7px 7px 0;
-  line-height: 1.52;
-}
-.effect-label {
-  display: block;
-  margin-bottom: 3px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-/* Complementary colours distinguish conditional effects without relying on colour alone. */
 .effect-variant {
   --effect-color: #ffc980;
-  border-left-color: var(--effect-color);
+  margin: 0;
+  padding: 11px 12px;
+  border-left: 2px solid var(--effect-color);
+  border-radius: 0 7px 7px 0;
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--effect-color) 13%, transparent),
     transparent
   );
   color: #e0e8f4;
-  padding: 11px 12px;
+  line-height: 1.52;
 }
 .effect-variant:nth-child(even) {
   --effect-color: #b7adff;
 }
 .effect-label {
+  display: block;
+  margin-bottom: 3px;
   color: var(--effect-color);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  font-size: 14px;
+  font-weight: 850;
 }

@@ -287,7 +287,11 @@ h1 {
 .core-card:hover,
 .core-card.inspected {
   border-color: color-mix(in srgb, var(--accent) 55%, #3d4a5d);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 45%, #121a25), #0e151e);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent-soft) 45%, #121a25),
+    #0e151e
+  );
   transform: translateY(-1px);
 }
 .core-icon {
@@ -1173,7 +1177,11 @@ body[data-class='mystic'] {
   padding: 10px 9px;
   border-color: color-mix(in srgb, var(--tier-color) 40%, #35435b);
   border-left: 3px solid var(--tier-color);
-  background: linear-gradient(120deg, color-mix(in srgb, var(--tier-color) 13%, #152033), #182135);
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--tier-color) 13%, #152033),
+    #182135
+  );
 }
 .node-icon {
   width: 36px;
@@ -1256,7 +1264,11 @@ body[data-class='mystic'] {
   top: 96px;
   max-height: calc(100vh - 108px);
   border-color: color-mix(in srgb, var(--accent) 35%, #304059);
-  background: linear-gradient(155deg, color-mix(in srgb, var(--accent) 11%, #172136), #111b2b 65%);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--accent) 11%, #172136),
+    #111b2b 65%
+  );
 }
 .inspector-empty {
   color: #a9bed4;
@@ -1417,7 +1429,48 @@ body::before {
   color: #fff;
 }
 
-/* Canonical debuff names with hover, keyboard and touch descriptions. */
+/* Semantic combat keywords: colour, dotted underline and labelled hover/focus/tap. */
+.buff-term,
+[data-category='buff'] {
+  --keyword-color: #83e6b1;
+}
+.hot-term,
+[data-category='hot'] {
+  --keyword-color: #fff0a3;
+}
+.shield-term,
+[data-category='shield'] {
+  --keyword-color: #dedee4;
+}
+.dot-term,
+[data-category='dot'] {
+  --keyword-color: #ff8585;
+}
+.debuff-term,
+[data-category='debuff'] {
+  --keyword-color: #c7a0ff;
+}
+/* The shared class precedes category overrides to keep each colour independent. */
+.debuff-term.buff-term {
+  --keyword-color: #83e6b1;
+}
+.debuff-term.hot-term {
+  --keyword-color: #fff0a3;
+}
+.debuff-term.shield-term {
+  --keyword-color: #dedee4;
+}
+.debuff-term.dot-term {
+  --keyword-color: #ff8585;
+}
+.cc-term,
+[data-category='cc'] {
+  --keyword-color: #ffb36e;
+}
+.utility-term,
+[data-category='utility'] {
+  --keyword-color: #9cd8f0;
+}
 .debuff-term {
   display: inline;
   padding: 0;
@@ -1425,7 +1478,7 @@ body::before {
   border-bottom: 1px dotted currentColor;
   border-radius: 0;
   background: transparent;
-  color: #ffb0b0;
+  color: var(--keyword-color);
   font: inherit;
   font-weight: 750;
   cursor: help;
@@ -1433,17 +1486,21 @@ body::before {
 }
 .debuff-term:hover,
 .debuff-term:focus-visible {
-  color: #ffe0cf;
+  color: color-mix(in srgb, var(--keyword-color) 72%, white);
+}
+.debuff-term:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 .debuff-effect-tooltip {
   position: fixed;
   z-index: 200;
   max-width: min(340px, calc(100vw - 16px));
   padding: 12px 14px;
-  border: 1px solid #bc737e;
+  border: 1px solid var(--keyword-color);
   border-radius: 9px;
-  background: #100a0d;
-  color: #f9e9ec;
+  background: #080808;
+  color: #f1f1f5;
   font-size: 14px;
   line-height: 1.55;
   white-space: normal;
@@ -1452,12 +1509,42 @@ body::before {
 .debuff-effect-tooltip[hidden] {
   display: none;
 }
-
-/* Positive status names use green while sharing the existing tooltip controls. */
-.debuff-term.buff-term {
-  color: #83e6b1;
+.keyword-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 12px 0;
+  font-size: 14px;
 }
-.debuff-term.buff-term:hover,
-.debuff-term.buff-term:focus-visible {
-  color: #bdffda;
+.skill-specs {
+  margin-top: 18px;
+}
+.skill-specs summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 0;
+}
+.severing-stages {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 14px 0;
+}
+.severing-stage {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+  padding: 10px 6px;
+  border: 1px solid #50505a;
+  border-radius: 8px;
+  text-align: center;
+}
+.severing-stage small {
+  font-size: 11px;
+}
+.severing-stage.available {
+  border-color: var(--accent);
+}
+.severing-stage.current {
+  background: color-mix(in srgb, var(--accent) 15%, #000);
 }

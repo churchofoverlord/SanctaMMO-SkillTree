@@ -20,7 +20,9 @@ function loadState() {
     if (!raw || typeof raw !== 'object') return clean;
     Object.keys(DATA).forEach((name) => {
       const validIds = new Set(DATA[name].nodes.map((n) => n.id));
-      const incoming = Array.isArray(raw[name]) ? raw[name].filter((id) => validIds.has(id)) : [];
+      const incoming = Array.isArray(raw[name])
+        ? raw[name].filter((id) => validIds.has(id))
+        : [];
       const chosen = [];
       incoming.forEach((id) => {
         const node = DATA[name].nodes.find((n) => n.id === id);
@@ -100,7 +102,11 @@ function availability(node, set = selectedSet()) {
   if (spent() >= maxSp())
     return { ok: false, code: 'cap', reason: `Maximum ${maxSp()} Skill Points reached` };
   if (!tierUnlocked(node.tier))
-    return { ok: false, code: 'tier', reason: `Requires ${threshold(node.tier)} SP spent` };
+    return {
+      ok: false,
+      code: 'tier',
+      reason: `Requires ${threshold(node.tier)} SP spent`,
+    };
   const missing = missingPrereqs(node, set);
   if (missing.length) {
     return {
@@ -244,15 +250,21 @@ function computeLayout(data) {
       const used = new Set();
       groups[tier]
         .sort((a, b) => {
-          const ap = (a.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
-          const bp = (b.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
+          const ap =
+            (a.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
+          const bp =
+            (b.requires || []).map((id) => positions[id]?.row).find(Boolean) ?? 999;
           if (ap !== bp) return ap - bp;
           return data.nodes.indexOf(a) - data.nodes.indexOf(b);
         })
         .forEach((node) => {
-          const parentRow = (node.requires || []).map((id) => positions[id]?.row).find(Boolean);
+          const parentRow = (node.requires || [])
+            .map((id) => positions[id]?.row)
+            .find(Boolean);
           let targetRow =
-            parentRow && rows.includes(parentRow) && !used.has(parentRow) ? parentRow : null;
+            parentRow && rows.includes(parentRow) && !used.has(parentRow)
+              ? parentRow
+              : null;
           if (!targetRow) targetRow = rows.find((candidate) => !used.has(candidate));
           if (!targetRow) targetRow = rows[0];
           used.add(targetRow);
@@ -555,7 +567,9 @@ function drawRelations(canvas) {
 
 function emphasizeRelations(id, active) {
   document
-    .querySelectorAll(`.relation-path[data-source="${id}"], .relation-path[data-target="${id}"]`)
+    .querySelectorAll(
+      `.relation-path[data-source="${id}"], .relation-path[data-target="${id}"]`,
+    )
     .forEach((path) => path.classList.toggle('emphasis', active));
 }
 
@@ -610,7 +624,20 @@ function renderInspector() {
       ${disabled ? `<div class="action-reason">${escapeHtml(check.reason)}</div>` : ''}
       <button class="primary-action${owned ? ' refund' : ''}" id="nodeAction" type="button" ${disabled ? 'disabled' : ''}>${escapeHtml(actionText)}</button>
     </div>`;
-  document.getElementById('nodeAction')?.addEventListener('click', () => togglePurchase(node.id));
+  document
+    .getElementById('nodeAction')
+    ?.addEventListener('click', () => togglePurchase(node.id));
+}
+
+function severingStageMarkup(item) {
+  const ids = [
+    'severing-strike',
+    'severing-strike-stage-ii',
+    'severing-strike-stage-iii',
+  ];
+  if (!ids.includes(item.id)) return '';
+  const learned = selectedSet();
+  return `<div class="severing-stages" aria-label="Severing hit progression">${ids.map((id, i) => `${i ? '<span aria-hidden="true">→</span>' : ''}<span class="severing-stage ${learned.has(id) ? 'available' : ''} ${item.id === id ? 'current' : ''}"><strong>${i + 1}/3</strong><small>${learned.has(id) ? 'Learned' : 'Not learned'}</small></span>`).join('')}</div>`;
 }
 
 function detailMarkup(item, isCore) {
@@ -623,12 +650,16 @@ function detailMarkup(item, isCore) {
     .join('');
   const relationBits = [];
   if (!isCore && item.requiresNames?.length)
-    relationBits.push(`<span>Requires ${escapeHtml(item.requiresNames.join(' + '))}</span>`);
+    relationBits.push(
+      `<span>Requires ${escapeHtml(item.requiresNames.join(' + '))}</span>`,
+    );
   if (!isCore && item.exclusiveNames?.length)
-    relationBits.push(`<span>Exclusive with ${escapeHtml(item.exclusiveNames.join(', '))}</span>`);
+    relationBits.push(
+      `<span>Exclusive with ${escapeHtml(item.exclusiveNames.join(', '))}</span>`,
+    );
   const meta = isCore
-    ? `<span class="detail-chip">Granted Core</span><span class="detail-chip">0 SP</span>`
-    : `<span class="detail-chip">Tier ${toRoman(item.tier)}</span><span class="detail-chip">${escapeHtml(semanticKind(item))}</span><span class="detail-chip">${item.cost || 1} SP</span>`;
+    ? `<span class="detail-chip">Granted Core</span><span class="detail-chip">0 Skill Points</span>`
+    : `<span class="detail-chip">Tier ${toRoman(item.tier)}</span><span class="detail-chip">${escapeHtml(semanticKind(item))}</span><span class="detail-chip">${item.cost || 1} Skill Point</span>`;
 
   return `
     <div class="detail-hero">
@@ -636,9 +667,10 @@ function detailMarkup(item, isCore) {
       <div><div class="detail-meta">${meta}</div><h2>${escapeHtml(item.name)}</h2></div>
     </div>
     <p class="detail-short">${formatEffectText(item.short)}</p>
+    ${severingStageMarkup(item)}
     <div class="detail-tooltip conditional-description">${formatConditionalDescription(item.tooltip || '')}</div>
     ${relationBits.length ? `<div class="relation-notes">${relationBits.join('')}</div>` : ''}
-    ${rows ? `<dl class="detail-table">${rows}</dl>` : ''}`;
+    ${rows ? `<details class="skill-specs"><summary>Technical specifications</summary><dl class="detail-table">${rows}</dl></details>` : ''}`;
 }
 
 function renderAppendix() {
@@ -653,7 +685,7 @@ function renderAppendix() {
   grid.className = 'appendix-grid';
   appendix.forEach((item) => {
     const card = document.createElement('article');
-    card.innerHTML = `<strong>${escapeHtml(item.name)}</strong><p>${formatEffectText(item.text)}</p>`;
+    card.innerHTML = `<strong>${escapeHtml(item.name)}</strong><div class="conditional-description">${formatConditionalDescription(item.text)}</div>`;
     grid.appendChild(card);
   });
   details.appendChild(grid);
