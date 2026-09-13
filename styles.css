@@ -1452,3 +1452,12 @@ body::before {
 .debuff-effect-tooltip[hidden] {
   display: none;
 }
+
+/* Positive status names use green while sharing the existing tooltip controls. */
+.debuff-term.buff-term {
+  color: #83e6b1;
+}
+.debuff-term.buff-term:hover,
+.debuff-term.buff-term:focus-visible {
+  color: #bdffda;
+}

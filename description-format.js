@@ -2,12 +2,10 @@ const colonLabelPattern =
   /^(Warrior Stance|Tank Stance|Warrior(?:\s+—\s+[^:]+)?|Tank(?:\s+—\s+[^:]+)?|Sun Stance|Moon Stance|Sun Aura|Moon Aura|Sun|Moon|Ally|Enemy|Bright Star|Full Moon|Manifest|Weave|Tick|Tack):\s*(.+)$/i;
 
 function splitSentences(text) {
-  return (
-    String(text || '')
-      .match(/[^.!?]+(?:[.!?]+|$)/g)
-      ?.map((sentence) => sentence.trim())
-      .filter(Boolean) || []
-  );
+  return capitalizeDescription(normalizeDebuffNames(text))
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
 }
 
 function parseConditionalSentence(sentence) {

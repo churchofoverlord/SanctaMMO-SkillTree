@@ -68,7 +68,131 @@ const DEBUFFS = [
     effect: 'Sets final Accuracy to 0 while active, after ordinary Accuracy modifiers.',
   },
 ];
+const BUFFS = [
+  {
+    name: 'Might',
+    aliases: ['P.Atk Up', 'P.AtkUp', 'Physical Attack Up', 'PhysicalAttackUp'],
+    effect: 'Increases Physical Attack.',
+    kind: 'buff',
+  },
+  {
+    name: 'Empower',
+    aliases: ['M.Atk Up', 'M.AtkUp', 'Magical Attack Up', 'MagicalAttackUp'],
+    effect: 'Increases Magical Attack.',
+    kind: 'buff',
+  },
+  {
+    name: 'Fortified',
+    aliases: ['P.Def Up', 'P.DefUp', 'Physical Defense Up', 'PhysicalDefenseUp'],
+    effect: 'Increases Physical Defense.',
+    kind: 'buff',
+  },
+  {
+    name: 'Warded',
+    aliases: ['M.Def Up', 'M.DefUp', 'Magical Defense Up', 'MagicalDefenseUp'],
+    effect: 'Increases Magical Defense.',
+    kind: 'buff',
+  },
+  {
+    name: 'Haste',
+    aliases: ['Attack Speed Up', 'AttackSpeedUp'],
+    effect: 'Increases Attack Speed.',
+    kind: 'buff',
+  },
+  {
+    name: 'Acumen',
+    aliases: ['Cast Speed Up', 'Casting Speed Up', 'CastSpeedUp', 'CastingSpeedUp'],
+    effect: 'Increases Casting Speed.',
+    kind: 'buff',
+  },
+  {
+    name: 'Focus',
+    aliases: [
+      'P./M. Crit Rate Up',
+      'P. Crit Rate Up',
+      'M. Crit Rate Up',
+      'Physical Crit Rate Up',
+      'Magical Crit Rate Up',
+      'PhysicalCritRateUp',
+      'MagicalCritRateUp',
+      'Critical Rate Up',
+      'Crit Rate Up',
+      'CritRateUp',
+    ],
+    effect: 'Increases Physical and Magical Critical Rate.',
+    kind: 'buff',
+  },
+  {
+    name: 'Fierce',
+    aliases: [
+      'P./M. Crit Power Up',
+      'P. Crit Power Up',
+      'M. Crit Power Up',
+      'Physical Crit Power Up',
+      'Magical Crit Power Up',
+      'PhysicalCritPowerUp',
+      'MagicalCritPowerUp',
+      'Critical Power Up',
+      'Critical Damage Up',
+      'Crit Power Up',
+      'Crit Damage Up',
+      'CritPowerUp',
+      'CritDamageUp',
+    ],
+    effect: 'Increases Physical and Magical Critical Power.',
+    kind: 'buff',
+  },
+  {
+    name: 'Vigor',
+    aliases: [
+      'Stamina Regen Up',
+      'Stamina Regeneration Up',
+      'StaminaRegenUp',
+      'StaminaRegenerationUp',
+    ],
+    effect: 'Increases Stamina regeneration.',
+    kind: 'buff',
+  },
+  {
+    name: 'Swiftness',
+    aliases: ['Movement Speed Up', 'MovementSpeedUp'],
+    effect: 'Increases Movement Speed.',
+    kind: 'buff',
+  },
+  {
+    name: 'Precision',
+    aliases: ['Accuracy Up', 'AccuracyUp'],
+    effect: 'Increases Accuracy.',
+    kind: 'buff',
+  },
+  {
+    name: 'Elusive',
+    aliases: ['Evasion Up', 'EvasionUp'],
+    effect: 'Increases Evasion.',
+    kind: 'buff',
+  },
+  {
+    name: 'Resolve',
+    aliases: ['Tenacity Up', 'TenacityUp'],
+    effect:
+      'Increases Tenacity, reducing the duration of newly applied Debuffs and persistent Crowd Control. Does not shorten DoTs or Forced Displacement.',
+    kind: 'buff',
+  },
+  {
+    name: 'Regeneration',
+    aliases: ['HP Regen Up', 'HP Regeneration Up', 'HPRegenUp', 'HPRegenerationUp'],
+    effect: 'Increases natural HP regeneration.',
+    kind: 'buff',
+  },
+  {
+    name: 'Clarity',
+    aliases: ['MP Regen Up', 'MP Regeneration Up', 'MPRegenUp', 'MPRegenerationUp'],
+    effect: 'Increases natural MP regeneration.',
+    kind: 'buff',
+  },
+];
 const STATUS_EFFECTS = [
+  ...BUFFS,
   ...DEBUFFS,
   ...[
     {
@@ -181,9 +305,32 @@ const debuffByTerm = new Map(
   ),
 );
 const debuffPattern = new RegExp(
-  '\\b(' + [...debuffByTerm.keys()].sort((a, b) => b.length - a.length).join('|') + ')\\b',
+  '\\b(' +
+    [...debuffByTerm.keys()]
+      .sort((a, b) => b.length - a.length)
+      .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|') +
+    ')\\b',
   'gi',
 );
+
+function statusEntry(term) {
+  const entry = debuffByTerm.get(term.toLowerCase());
+  if (
+    entry?.kind === 'buff' &&
+    term.toLowerCase() === entry.name.toLowerCase() &&
+    term !== entry.name
+  )
+    return null;
+  return entry;
+}
+
+function capitalizeDescription(text) {
+  return text.replace(
+    /(^|[.!?]\s+|:\s+|\n\s*)([a-z])/g,
+    (_, prefix, letter) => prefix + letter.toUpperCase(),
+  );
+}
 
 function normalizeDebuffNames(text) {
   return String(text ?? '')
@@ -204,19 +351,20 @@ function normalizeDebuffNames(text) {
     .replace(/\bare Silenced\b/g, 'receive Silence')
     .replace(/\bthe Rooted target\b/g, 'the target with Root')
     .replace(/\ba Sleeping enemy\b/g, 'an enemy with Sleep')
-    .replace(debuffPattern, (term) => debuffByTerm.get(term.toLowerCase()).name)
+    .replace(debuffPattern, (term) => statusEntry(term)?.name || term)
     .replace(/\bSlow\/Slow\b/g, 'Slow');
 }
 
 function formatEffectText(text) {
-  const normalized = normalizeDebuffNames(text);
+  const normalized = capitalizeDescription(normalizeDebuffNames(text));
   let end = 0;
   const parts = [];
   for (const match of normalized.matchAll(debuffPattern)) {
+    const entry = statusEntry(match[0]);
+    if (!entry) continue;
     parts.push(escapeHtml(normalized.slice(end, match.index)));
-    const entry = debuffByTerm.get(match[0].toLowerCase());
     parts.push(
-      `<button type="button" class="debuff-term" data-debuff="${entry.name}">${entry.name}</button>`,
+      `<button type="button" class="debuff-term${entry.kind === 'buff' ? ' buff-term' : ''}" data-debuff="${entry.name}">${entry.name}</button>`,
     );
     end = match.index + match[0].length;
   }
