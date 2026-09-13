@@ -154,3 +154,6 @@ footer { color:#a1b3cd; }
 html, body { background:#000; }
 body::before { content:none; }
 .topbar { background:#000; }
+
+/* Black outer containers for tiers and granted skills. */
+.tree-shell, .core-section { background:#000; }
