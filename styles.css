@@ -1416,3 +1416,39 @@ body::before {
   background: #442027;
   color: #fff;
 }
+
+/* Canonical debuff names with hover, keyboard and touch descriptions. */
+.debuff-term {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dotted currentColor;
+  border-radius: 0;
+  background: transparent;
+  color: #ffb0b0;
+  font: inherit;
+  font-weight: 750;
+  cursor: help;
+  text-align: inherit;
+}
+.debuff-term:hover,
+.debuff-term:focus-visible {
+  color: #ffe0cf;
+}
+.debuff-effect-tooltip {
+  position: fixed;
+  z-index: 200;
+  max-width: min(340px, calc(100vw - 16px));
+  padding: 12px 14px;
+  border: 1px solid #bc737e;
+  border-radius: 9px;
+  background: #100a0d;
+  color: #f9e9ec;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: normal;
+  box-shadow: 0 8px 28px #0009;
+}
+.debuff-effect-tooltip[hidden] {
+  display: none;
+}

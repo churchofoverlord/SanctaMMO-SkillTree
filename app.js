@@ -330,7 +330,7 @@ function renderCore() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `core-card${inspected?.type === 'core' && inspected.id === core.id ? ' inspected' : ''}`;
-    button.title = core.short || core.name;
+    button.title = normalizeDebuffNames(core.short || core.name);
     button.innerHTML = `
       <span class="core-icon">${escapeHtml(initials(core.name))}</span>
       <span class="core-copy"><strong>${escapeHtml(core.name)}</strong><small>Granted</small></span>
@@ -348,7 +348,7 @@ function createNode(node) {
   button.className = `skill-node state-${stateName}${inspected?.type === 'node' && inspected.id === node.id ? ' inspected' : ''}`;
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
-  button.title = node.short || node.name;
+  button.title = normalizeDebuffNames(node.short || node.name);
   button.setAttribute(
     'aria-label',
     `${node.name}. ${check.reason}. Select for details. Double-click to learn or refund.`,
@@ -572,6 +572,7 @@ function inspect(type, id) {
 }
 
 function renderInspector() {
+  hideDebuffTooltip();
   const content = document.getElementById('inspectorContent');
   const inspector = document.getElementById('inspector');
   if (!inspected) {
@@ -617,7 +618,7 @@ function detailMarkup(item, isCore) {
   const rows = Object.entries(fields)
     .map(
       ([key, value]) =>
-        `<div class="detail-row"><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`,
+        `<div class="detail-row"><dt>${escapeHtml(key)}</dt><dd>${formatEffectText(value)}</dd></div>`,
     )
     .join('');
   const relationBits = [];
@@ -634,7 +635,7 @@ function detailMarkup(item, isCore) {
       <div class="detail-icon">${escapeHtml(initials(item.name))}</div>
       <div><div class="detail-meta">${meta}</div><h2>${escapeHtml(item.name)}</h2></div>
     </div>
-    <p class="detail-short">${escapeHtml(item.short)}</p>
+    <p class="detail-short">${formatEffectText(item.short)}</p>
     <div class="detail-tooltip conditional-description">${formatConditionalDescription(item.tooltip || '')}</div>
     ${relationBits.length ? `<div class="relation-notes">${relationBits.join('')}</div>` : ''}
     ${rows ? `<dl class="detail-table">${rows}</dl>` : ''}`;
@@ -652,7 +653,7 @@ function renderAppendix() {
   grid.className = 'appendix-grid';
   appendix.forEach((item) => {
     const card = document.createElement('article');
-    card.innerHTML = `<strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.text)}</p>`;
+    card.innerHTML = `<strong>${escapeHtml(item.name)}</strong><p>${formatEffectText(item.text)}</p>`;
     grid.appendChild(card);
   });
   details.appendChild(grid);

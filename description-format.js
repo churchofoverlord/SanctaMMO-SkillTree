@@ -41,7 +41,7 @@ function formatConditionalDescription(text) {
     .filter((entry) => entry.parsed);
 
   if (labelled.length < 2) {
-    return `<p class="effect-common">${escapeHtml(text)}</p>`;
+    return `<p class="effect-common">${formatEffectText(text)}</p>`;
   }
 
   const firstIndex = labelled[0].index;
@@ -60,18 +60,18 @@ function formatConditionalDescription(text) {
   });
 
   return [
-    intro.length ? `<p class="effect-common">${escapeHtml(intro.join(' '))}</p>` : '',
+    intro.length ? `<p class="effect-common">${formatEffectText(intro.join(' '))}</p>` : '',
     `<div class="effect-variants">${variants
       .map(
         (variant) => `
       <p class="effect-variant">
         <span class="effect-label">${escapeHtml(variant.label)}</span>
-        <span>${escapeHtml(variant.text)}</span>
+        <span>${formatEffectText(variant.text)}</span>
       </p>`,
       )
       .join('')}</div>`,
     outro.length
-      ? `<p class="effect-common effect-common-after">${escapeHtml(outro.join(' '))}</p>`
+      ? `<p class="effect-common effect-common-after">${formatEffectText(outro.join(' '))}</p>`
       : '',
   ].join('');
 }
