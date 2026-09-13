@@ -68,8 +68,115 @@ const DEBUFFS = [
     effect: 'Sets final Accuracy to 0 while active, after ordinary Accuracy modifiers.',
   },
 ];
+const STATUS_EFFECTS = [
+  ...DEBUFFS,
+  ...[
+    {
+      name: 'Stun',
+      aliases: [],
+      effect:
+        'Blocks voluntary movement, facing and ordinary actions, and interrupts actions in progress. Personal Cleanse/CC-break remains available. Does not cancel Forced Displacement.',
+    },
+    {
+      name: 'Root',
+      aliases: [],
+      effect:
+        'Blocks voluntary movement and facing, Dodge, Sprint and starting movement skills. Blocks teleport relocation while active. Ordinary non-movement skills, Basic Attacks and Guard remain available. Does not cancel a dash or leap already underway, or prevent Forced Displacement.',
+    },
+    {
+      name: 'Silence',
+      aliases: [],
+      effect:
+        'Blocks skills and interrupts skills, casts and channels in progress. Basic Attacks, movement, Guard, Dodge and Sprint remain available. Personal Cleanse/CC-break remains available.',
+    },
+    {
+      name: 'Disarm',
+      aliases: [],
+      effect:
+        'Blocks Basic Attacks and Guard, and interrupts a Basic Attack in progress. Skills and ordinary movement remain available.',
+    },
+    {
+      name: 'Fear',
+      aliases: [],
+      effect:
+        'Forces movement and facing away from the caster, blocks ordinary other actions and interrupts active casts and channels. Personal Cleanse/CC-break remains available.',
+    },
+    {
+      name: 'Sleep',
+      aliases: [],
+      effect:
+        'Blocks actions and voluntary control like Stun. Any received damage, including a DoT tick, breaks Sleep. Personal Cleanse/CC-break remains available.',
+    },
+    {
+      name: 'Taunt',
+      aliases: [],
+      effect:
+        'Forces the target to select the caster. In PvE, also greatly increases threat. In PvP, forces Basic Attack attempts in range and movement toward the caster out of range, subject to other active control effects.',
+    },
+    {
+      name: 'Interrupt',
+      aliases: [],
+      effect:
+        'Instantly cancels an active cast, channel or Basic Attack and clears the current selected target. Has no duration and does not erase PvE threat.',
+    },
+    {
+      name: 'Forced Displacement',
+      aliases: ['ForcedDisplacement'],
+      effect:
+        'Forced movement such as Push, Pull or Shove. Blocks voluntary control and ordinary actions while active; personal Cleanse/CC-break remains available. Cleanse cancels it. It is not persistent CC and is not shortened by Tenacity.',
+    },
+    {
+      name: 'CC',
+      aliases: ['Crowd Control'],
+      effect:
+        'Crowd Control: Stun, Root, Silence, Disarm, Fear, Sleep and Taunt restrict actions or control. Cleanse removes persistent CC and Tenacity shortens its duration. Same-type reapplication does not extend active CC. Slow and Blind are Debuffs instead.',
+    },
+    {
+      name: 'DoT',
+      aliases: ['DoTs', 'Damage over Time'],
+      effect:
+        'Damage over time: deals damage at fixed intervals, using current relevant stats at each tick. Ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+    },
+    {
+      name: 'HoT',
+      aliases: ['HoTs', 'Healing over Time', 'Heal over Time'],
+      effect:
+        'Healing over time: restores HP at fixed intervals, using current relevant stats at each tick. Cannot critically heal. Wounded reduces the healing received. Not removed by Cleanse or shortened by Tenacity.',
+    },
+    {
+      name: 'Bleed',
+      aliases: [],
+      effect:
+        'Damage-over-time effect. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+    },
+    {
+      name: 'Poison',
+      aliases: [],
+      effect:
+        'Damage-over-time effect. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+    },
+    {
+      name: 'Burn',
+      aliases: [],
+      effect:
+        'Damage-over-time effect applied by eligible Fire skills in Manifest. Uses authored damage, duration and stacks; ticks cannot critically hit. Not removed by Cleanse or shortened by Tenacity.',
+    },
+    {
+      name: 'Bliss',
+      aliases: [],
+      effect:
+        'Healing-over-time effect produced by Connection and Ritual. Restores HP periodically; Wounded reduces the healing received. Connection ends its own effect if the tether breaks.',
+    },
+    {
+      name: 'Curse',
+      aliases: [],
+      effect:
+        'Magical damage-over-time effect produced by Connection and Ritual. Deals periodic Magical Damage. Connection ends its own effect if the tether breaks.',
+    },
+  ],
+];
 const debuffByTerm = new Map(
-  DEBUFFS.flatMap((entry) =>
+  STATUS_EFFECTS.flatMap((entry) =>
     [entry.name, ...entry.aliases].map((term) => [term.toLowerCase(), entry]),
   ),
 );
@@ -80,6 +187,23 @@ const debuffPattern = new RegExp(
 
 function normalizeDebuffNames(text) {
   return String(text ?? '')
+    .replace(/\b([Ee]nemies) already Slowed\b/g, '$1 with Slow')
+    .replace(/\b(was|were) already Slowed\b/g, 'had Slow')
+    .replace(/\balready Slowed\b/g, 'with Slow')
+    .replace(/\bSlowed\b/g, 'affected by Slow')
+    .replace(/\bSlows\b/g, 'applies Slow to')
+    .replace(/\bStuns\b/g, 'applies Stun to')
+    .replace(/\bRoots\b/g, 'applies Root to')
+    .replace(/\bInterrupts\b/g, 'applies Interrupt to')
+    .replace(/\bBlinds\b/g, 'applies Blind to')
+    .replace(/\benemies already Silenced\b/g, 'enemies with Silence')
+    .replace(/\balready Stunned\b/g, 'affected by Stun')
+    .replace(/\bpre-Stunned\b/g, 'pre-existing Stun')
+    .replace(/\bis Rooted\b/g, 'has Root')
+    .replace(/\bare Rooted\b/g, 'receive Root')
+    .replace(/\bare Silenced\b/g, 'receive Silence')
+    .replace(/\bthe Rooted target\b/g, 'the target with Root')
+    .replace(/\ba Sleeping enemy\b/g, 'an enemy with Sleep')
     .replace(debuffPattern, (term) => debuffByTerm.get(term.toLowerCase()).name)
     .replace(/\bSlow\/Slow\b/g, 'Slow');
 }
