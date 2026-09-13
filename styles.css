@@ -157,3 +157,7 @@ body::before { content:none; }
 
 /* Black outer containers for tiers and granted skills. */
 .tree-shell, .core-section { background:#000; }
+
+/* Explicit locked-tier label beside the tier name. */
+.tier-title > span { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tier-title .tier-locked { color:#ff5555; font-size:13px; font-weight:900; letter-spacing:.02em; }
