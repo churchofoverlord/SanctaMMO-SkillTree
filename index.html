@@ -8,7 +8,7 @@
     />
     <meta name="theme-color" content="#000000" />
     <title>SanctaMMO — Primary Skill Trees</title>
-    <link rel="stylesheet" href="styles.css?v=family-lines-1" />
+    <link rel="stylesheet" href="styles.css?v=ornate-grid-1" />
   </head>
   <body data-class="fighter">
     <div class="app-shell">
@@ -27,7 +27,7 @@
         ></nav>
       </header>
 
-      <section class="build-panel" aria-label="Build status">
+      <section class="build-panel framed-panel" aria-label="Build status">
         <div>
           <strong id="currentClass">Fighter</strong><span id="role"></span>
         </div>
@@ -41,25 +41,26 @@
           </div>
           <span id="remaining">13 SP remaining</span>
         </div>
+        <div class="reset-row">
+          <button id="resetClass" type="button">Reset Skill Tree</button>
+        </div>
       </section>
-
-      <section class="core-section" aria-labelledby="coreTitle">
-        <header>
-          <div>
-            <small>ALWAYS AVAILABLE</small>
-            <h2 id="coreTitle">Granted Core</h2>
-          </div>
-          <span>0 SP</span>
-        </header>
-        <div class="core-strip" id="grantedGrid"></div>
-      </section>
-
-      <div class="reset-row">
-        <button id="resetClass" type="button">Reset Skill Tree</button>
-      </div>
 
       <main class="workspace">
         <section class="tree-region" aria-label="Primary Skill Tree">
+          <section
+            class="core-section framed-panel"
+            aria-labelledby="coreTitle"
+          >
+            <header>
+              <div>
+                <small>ALWAYS AVAILABLE</small>
+                <h2 id="coreTitle">Granted Core</h2>
+              </div>
+              <span>0 SP</span>
+            </header>
+            <div class="core-strip" id="grantedGrid"></div>
+          </section>
           <div class="tree-toolbar">
             <span><i></i>Prerequisite</span
             ><span><i class="choice-key"></i>Choose one</span
@@ -95,7 +96,7 @@
               CC
             </button>
           </div>
-          <div class="tree-shell"><div id="tree"></div></div>
+          <div class="tree-shell framed-panel"><div id="tree"></div></div>
           <div class="notice" id="notice" aria-live="polite"></div>
           <div id="appendixHolder"></div>
         </section>
@@ -134,12 +135,12 @@
       </div>
     </dialog>
 
-    <script src="data/fighter.js?v=family-lines-1"></script>
-    <script src="data/scout.js?v=family-lines-1"></script>
-    <script src="data/mage.js?v=family-lines-1"></script>
-    <script src="data/mystic.js?v=family-lines-1"></script>
-    <script src="debuff-tooltips.js?v=family-lines-1"></script>
-    <script src="description-format.js?v=family-lines-1"></script>
-    <script src="app.js?v=family-lines-1"></script>
+    <script src="data/fighter.js?v=ornate-grid-1"></script>
+    <script src="data/scout.js?v=ornate-grid-1"></script>
+    <script src="data/mage.js?v=ornate-grid-1"></script>
+    <script src="data/mystic.js?v=ornate-grid-1"></script>
+    <script src="debuff-tooltips.js?v=ornate-grid-1"></script>
+    <script src="description-format.js?v=ornate-grid-1"></script>
+    <script src="app.js?v=ornate-grid-1"></script>
   </body>
 </html>

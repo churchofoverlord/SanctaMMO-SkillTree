@@ -72,6 +72,12 @@ function initials(name) {
     .join("")
     .toUpperCase();
 }
+function iconHue(name) {
+  return (
+    [...String(name)].reduce((total, char) => total + char.charCodeAt(0), 0) %
+    360
+  );
+}
 
 function nodeState(node, set = learnedSet()) {
   if (set.has(node.id))
@@ -219,7 +225,8 @@ function renderCore() {
       "aria-label",
       `${core.name}. Granted Core. Open details.`,
     );
-    button.innerHTML = `<span class="core-icon">${initials(core.name)}</span><span><strong>${core.name}</strong><small>Granted Core</small></span><span aria-hidden="true">›</span>`;
+    button.style.setProperty("--icon-hue", iconHue(core.name));
+    button.innerHTML = `<span class="core-icon"><i aria-hidden="true"></i><b>${initials(core.name)}</b></span><span><strong>${core.name}</strong><small>Granted Core</small></span>`;
     button.onclick = () => inspect("core", core.id);
     root.append(button);
   }
@@ -232,6 +239,7 @@ function createNode(node) {
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
   button.dataset.order = node.order;
+  button.style.setProperty("--icon-hue", iconHue(node.name));
   button.title = status.reason;
   button.setAttribute(
     "aria-label",
@@ -239,8 +247,12 @@ function createNode(node) {
   );
   const mark =
     status.code === "learned" ? "✓" : status.code === "locked" ? "🔒" : "";
-  button.innerHTML = `<span class="node-icon">${initials(node.name)}${mark ? `<i class="state-mark" aria-hidden="true">${mark}</i>` : ""}</span><strong>${node.name}</strong>`;
+  button.innerHTML = `<span class="node-icon"><i class="icon-sigil" aria-hidden="true"></i><b>${initials(node.name)}</b>${mark ? `<i class="state-mark" aria-hidden="true">${mark}</i>` : ""}</span><strong>${node.name}</strong>`;
   button.onclick = () => inspect("node", node.id);
+  button.ondblclick = (event) => {
+    event.preventDefault();
+    if (nodeState(node).code === "available") learnNode(node);
+  };
   return button;
 }
 
@@ -278,7 +290,7 @@ function buildFamilyLayout() {
   );
   const columns = new Map();
   let nextColumn = 1;
-  for (const family of orderedFamilies) {
+  orderedFamilies.forEach((family, familyIndex) => {
     const width = Math.max(
       ...[1, 2, 3, 4].map(
         (tier) => family.nodes.filter((node) => node.tier === tier).length,
@@ -290,9 +302,19 @@ function buildFamilyLayout() {
         .sort((a, b) => a.order - b.order)
         .forEach((node, index) => columns.set(node.id, nextColumn + index));
     }
+    const roots = family.nodes
+      .filter((node) => !(node.requires || []).length)
+      .sort((a, b) => a.tier - b.tier || a.order - b.order);
+    family.startColumn = nextColumn;
+    family.width = width;
+    family.number = familyIndex + 1;
+    family.label = roots
+      .map((node) => node.name.replace(/\s+[IV]+$/, ""))
+      .filter((name, index, list) => list.indexOf(name) === index)
+      .join(" / ");
     nextColumn += width;
-  }
-  return { columns, count: nextColumn - 1 };
+  });
+  return { columns, count: nextColumn - 1, families: orderedFamilies };
 }
 
 function renderTree() {
@@ -307,6 +329,15 @@ function renderTree() {
   svg.classList.add("relations");
   svg.setAttribute("aria-hidden", "true");
   board.append(svg);
+  const familyHeaders = document.createElement("div");
+  familyHeaders.className = "family-headers";
+  for (const family of familyLayout.families) {
+    const header = document.createElement("span");
+    header.style.gridColumn = `${family.startColumn} / span ${family.width}`;
+    header.innerHTML = `<b>${family.number}</b><em>${family.label}</em>`;
+    familyHeaders.append(header);
+  }
+  board.append(familyHeaders);
   for (let tier = 1; tier <= 4; tier++) {
     const unlocked = tierUnlocked(tier),
       section = document.createElement("section");
@@ -444,12 +475,29 @@ function technicalStrip(item) {
       .join("");
   return rows ? `<dl class="technical-strip">${rows}</dl>` : "";
 }
+function synthesisPreview(item) {
+  if (currentClass !== "Mage" || !item.id?.startsWith("elemental")) return "";
+  const forms = classData().appendix || [];
+  const visible = item.id === "elemental-weaver" ? forms.slice(0, 3) : forms;
+  return `<div class="synthesis-preview"><strong>Synthesis</strong>${visible
+    .map((form) => {
+      const [result, formula = ""] = form.name
+        .split("—")
+        .map((part) => part.trim());
+      return `<div><span>${formula}</span><i>→</i><b>${result}</b></div>`;
+    })
+    .join("")}</div>`;
+}
 function detailMarkup(item, isCore, status) {
   const prereq =
     !isCore && (item.requiresNames || []).length
       ? `<p class="prerequisite-note"><b>Requires:</b> ${item.requiresNames.join(" + ")}</p>`
       : "";
-  return `<div class="detail-hero"><span class="detail-icon">${initials(item.name)}</span><div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${severingProgress(item)}${technicalStrip(item)}`;
+  const exclusive =
+    !isCore && (item.exclusiveNames || []).length
+      ? `<p class="exclusive-note"><b>!</b><span>Learning this prevents <strong>${item.exclusiveNames.join(", ")}</strong> until you reset the whole tree.</span></p>`
+      : "";
+  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}"><span class="detail-icon"><i aria-hidden="true"></i><b>${initials(item.name)}</b></span><div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
 }
 function renderInspector() {
   hideKeywordTooltip();
