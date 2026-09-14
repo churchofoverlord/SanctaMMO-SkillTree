@@ -285,9 +285,15 @@ function buildFamilyLayout() {
     families.get(root).nodes.push(node);
   });
 
-  const orderedFamilies = [...families.values()].sort(
-    (a, b) => a.canonicalIndex - b.canonicalIndex,
-  );
+  const orderedFamilies = [...families.values()].sort((a, b) => {
+    const firstA = Math.min(
+      ...a.nodes.map((node) => node.tier * 100 + node.order),
+    );
+    const firstB = Math.min(
+      ...b.nodes.map((node) => node.tier * 100 + node.order),
+    );
+    return firstA - firstB || a.canonicalIndex - b.canonicalIndex;
+  });
   const columns = new Map();
   let nextColumn = 1;
   orderedFamilies.forEach((family, familyIndex) => {
