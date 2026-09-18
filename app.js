@@ -1,4 +1,108 @@
 const DATA = window.SKILL_TREE_DATA;
+
+const SKILL_ICON_ORDER = [
+  "fighter/Battlecry","fighter/Bulwark","fighter/Chain_pull","fighter/Chains","fighter/Challenge","fighter/Cleanse","fighter/Crushing_blow","fighter/Defiant_presence","fighter/Piercing_strike","fighter/Pressure","fighter/Provoke","fighter/Rage","fighter/Rally","fighter/Rally_Tank","fighter/Rally_Warrior","fighter/Second_wind","fighter/Severing_strike","fighter/Shoulder_rush","fighter/Shoulder_rush_tank","fighter/Shoulder_rush_warrior","fighter/Tank_stance","fighter/War_leap","fighter/Warrior_stance",
+  "mage/Arcane_burst","mage/Arcane_weaving","mage/Blink","mage/Cleanse","mage/Coil","mage/Combust","mage/Elemental_weaver","mage/Fire_bolt","mage/Frost_lance","mage/Glacial_spike","mage/Iceberg","mage/Laser","mage/Mana_barrier","mage/Mana_storm","mage/Mist","mage/Overcharge","mage/Static_bolt","mage/Tempest","mage/Thunderstrike","mage/Vortex",
+  "mystic/Astral_pull","mystic/Astral_step","mystic/Astral_veil","mystic/Black_hole","mystic/Bright_star","mystic/Cleanse","mystic/Connection_ally","mystic/Connection_enemy","mystic/Cosmic_ray","mystic/Eclipse","mystic/Ether_ally","mystic/Ether_enemy","mystic/Full_moon","mystic/Lullaby","mystic/Moon_aura","mystic/Moon_stance","mystic/Nightmare","mystic/Resurrect","mystic/Serenity","mystic/Spirit_of_the_comet","mystic/Spirit_of_the_orbit","mystic/Spirit_of_the_star","mystic/Sun_Stance","mystic/Sun_aura",
+  "scout/Backstab","scout/Bleed_stance","scout/Blinding_dart","scout/Cleanse","scout/Evasion","scout/Exploit_weakness","scout/Hemorrhage","scout/Long_jump","scout/Poison_sac","scout/Poison_stance","scout/Quickstep","scout/Rapid_attack","scout/Sand_shot","scout/Sickness","scout/Smoke_bomb","scout/Torpor","scout/Vine_field","scout/Volley"
+];
+const SKILL_ICON_INDEX = new Map(SKILL_ICON_ORDER.map((key, index) => [key.toLowerCase(), index]));
+const SKILL_ICON_COLS = 10;
+const SKILL_ICON_ROWS = 9;
+const SKILL_ICON_SPRITE = window.__SKILL_ICON_B64
+  ? "data:image/webp;base64," + window.__SKILL_ICON_B64
+  : "";
+const SKILL_ICON_OVERRIDES = {
+  Fighter: {
+    "core-warrior-tank-stance": ["fighter/Warrior_stance", "fighter/Tank_stance"],
+    "core-rage-bulwark": ["fighter/Rage", "fighter/Bulwark"],
+    "blade-rush-shield-rush": ["fighter/Shoulder_rush_warrior", "fighter/Shoulder_rush_tank"],
+    "battlecry-challenge": ["fighter/Battlecry", "fighter/Challenge"],
+    "battlerage-chain-challenge": ["fighter/Battlecry", "fighter/Challenge"],
+    "pressure-provoke": ["fighter/Pressure", "fighter/Provoke"],
+    "chain-pull": ["fighter/Chain_pull"],
+    "bloodlust-inspiration": ["fighter/Rally_Warrior", "fighter/Rally_Tank"],
+    "momentum-mastery": ["fighter/Rage", "fighter/Bulwark"]
+  },
+  Mage: {
+    "core-manifest-weave": ["mage/Overcharge"]
+  },
+  Mystic: {
+    "core-sun-moon-stance": ["mystic/Sun_Stance", "mystic/Moon_stance"],
+    "core-bright-star-full-moon": ["mystic/Bright_star", "mystic/Full_moon"],
+    "ether": ["mystic/Ether_ally", "mystic/Ether_enemy"],
+    "tick-tack": ["mystic/Ether_ally", "mystic/Ether_enemy"],
+    "connection": ["mystic/Connection_ally", "mystic/Connection_enemy"],
+    "ritual": ["mystic/Connection_ally", "mystic/Connection_enemy"],
+    "astral-aura": ["mystic/Sun_aura", "mystic/Moon_aura"],
+    "nightmare": ["mystic/Nightmare"],
+    "black-hole": ["mystic/Black_hole"],
+    "white-hole": ["mystic/Black_hole"]
+  },
+  Scout: {
+    "core-poison-bleed-stance": ["scout/Poison_stance", "scout/Bleed_stance"],
+    "core-poison-sac-hemorrhage": ["scout/Poison_sac", "scout/Hemorrhage"]
+  }
+};
+function normalizeSkillIconName(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/\s+[ivx]+$/i, "")
+    .replace(/\s+—.*$/, "")
+    .replace(/[^a-z0-9]+/g, "");
+}
+const NORMALIZED_SKILL_ICONS = new Map(
+  SKILL_ICON_ORDER.map((key) => {
+    const slash = key.indexOf("/");
+    return [
+      key.slice(0, slash) + "/" + normalizeSkillIconName(key.slice(slash + 1)),
+      key
+    ];
+  }),
+);
+function skillIconKeys(item) {
+  const override = SKILL_ICON_OVERRIDES[currentClass]?.[item.id];
+  if (override) return override.filter((key) => SKILL_ICON_INDEX.has(key.toLowerCase()));
+  const classKey = currentClass.toLowerCase();
+  const baseName = String(item.name)
+    .replace(/\s+[IVX]+$/i, "")
+    .replace(/\s+—.*$/, "")
+    .trim();
+  const keys = baseName
+    .split(/\s*\/\s*/)
+    .map((part) => NORMALIZED_SKILL_ICONS.get(classKey + "/" + normalizeSkillIconName(part)))
+    .filter(Boolean);
+  return [...new Set(keys)].slice(0, 2);
+}
+function skillIconStyle(key) {
+  const index = SKILL_ICON_INDEX.get(String(key).toLowerCase());
+  if (index == null || !SKILL_ICON_SPRITE) return "";
+  const col = index % SKILL_ICON_COLS;
+  const row = Math.floor(index / SKILL_ICON_COLS);
+  const x = (col / (SKILL_ICON_COLS - 1)) * 100;
+  const y = (row / (SKILL_ICON_ROWS - 1)) * 100;
+  return "background-image:url('" + SKILL_ICON_SPRITE + "');" +
+    "background-size:" + (SKILL_ICON_COLS * 100) + "% " + (SKILL_ICON_ROWS * 100) + "%;" +
+    "background-position:" + x + "% " + y + "%;";
+}
+function skillIconFrame(item, className, mark) {
+  const keys = skillIconKeys(item);
+  const art = keys.length
+    ? '<span class="skill-art' + (keys.length > 1 ? " multi" : "") + '" aria-hidden="true">' +
+      keys.map((key) => '<i style="' + skillIconStyle(key) + '"></i>').join("") +
+      "</span>"
+    : "";
+  const fallback = art
+    ? ""
+    : '<i class="fallback-sigil' + (className === "node-icon" ? " icon-sigil" : "") + '" aria-hidden="true"></i><b>' +
+      initials(item.name) + "</b>";
+  const stateMark = mark
+    ? '<i class="state-mark" aria-hidden="true">' + mark + "</i>"
+    : "";
+  return '<span class="' + className + (art ? " has-skill-art" : "") + '">' +
+    art + fallback + stateMark + "</span>";
+}
+
 const STORAGE_KEY = "sanctammo-skill-tree-v2";
 const MAX_SP = 13;
 const requestedClass = new URLSearchParams(location.search).get("class");
@@ -226,7 +330,7 @@ function renderCore() {
       `${core.name}. Granted Core. Open details.`,
     );
     button.style.setProperty("--icon-hue", iconHue(core.name));
-    button.innerHTML = `<span class="core-icon"><i aria-hidden="true"></i><b>${initials(core.name)}</b></span><span><strong>${core.name}</strong><small>Granted Core</small></span>`;
+    button.innerHTML = `${skillIconFrame(core, "core-icon")}<span><strong>${core.name}</strong><small>Granted Core</small></span>`;
     button.onclick = () => inspect("core", core.id);
     root.append(button);
   }
@@ -247,7 +351,7 @@ function createNode(node) {
   );
   const mark =
     status.code === "learned" ? "✓" : status.code === "locked" ? "🔒" : "";
-  button.innerHTML = `<span class="node-icon"><i class="icon-sigil" aria-hidden="true"></i><b>${initials(node.name)}</b>${mark ? `<i class="state-mark" aria-hidden="true">${mark}</i>` : ""}</span><strong>${node.name}</strong>`;
+  button.innerHTML = `${skillIconFrame(node, "node-icon", mark)}<strong>${node.name}</strong>`;
   button.onclick = () => inspect("node", node.id);
   button.ondblclick = (event) => {
     event.preventDefault();
@@ -503,7 +607,7 @@ function detailMarkup(item, isCore, status) {
     !isCore && (item.exclusiveNames || []).length
       ? `<p class="exclusive-note"><b>!</b><span>Learning this prevents <strong>${item.exclusiveNames.join(", ")}</strong> until you reset the whole tree.</span></p>`
       : "";
-  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}"><span class="detail-icon"><i aria-hidden="true"></i><b>${initials(item.name)}</b></span><div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
+  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
 }
 function renderInspector() {
   hideKeywordTooltip();
