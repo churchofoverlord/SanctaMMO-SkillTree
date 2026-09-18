@@ -1519,3 +1519,42 @@ footer {
     text-align: center;
   }
 }
+
+
+/* Supplied SanctaMMO skill artwork */
+.skill-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 1px;
+  background: #020308;
+}
+.skill-art > i {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+}
+.skill-art.multi > i:first-child {
+  clip-path: inset(0 50% 0 0);
+}
+.skill-art.multi > i:last-child {
+  clip-path: inset(0 0 0 50%);
+}
+.skill-art.multi::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 2;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 4px #000;
+  content: "";
+}
+.has-skill-art::after {
+  z-index: 3;
+}
+.has-skill-art .state-mark {
+  z-index: 4;
+}
