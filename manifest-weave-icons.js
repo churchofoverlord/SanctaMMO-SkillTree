@@ -1,13 +1,16 @@
 (() => {
   const TARGET_NAME = "Manifest / Weave";
   const PATCHED_ATTR = "manifestWeaveIcons";
-  const DATA = window.MANIFEST_WEAVE_ICON_DATA || {};
   const VARIANTS = [
-    { label: "Manifest", src: DATA.manifest },
-    { label: "Weave", src: DATA.weave },
-  ].filter((variant) => variant.src);
-
-  if (VARIANTS.length !== 2) return;
+    {
+      label: "Manifest",
+      src: "assets/manifest.webp?v=manifest-weave-2",
+    },
+    {
+      label: "Weave",
+      src: "assets/weave.webp?v=manifest-weave-2",
+    },
+  ];
 
   function iconStyle(src) {
     return `background-image:url('${src}');background-size:cover;background-position:center;`;
@@ -40,7 +43,14 @@
 
     VARIANTS.forEach((variant, index) => {
       const label = labels[index];
-      if (!label || label.querySelector(".form-skill-icon")) return;
+      if (!label) return;
+
+      const existing = label.querySelector(".form-skill-icon");
+      if (existing) {
+        existing.setAttribute("style", iconStyle(variant.src));
+        return;
+      }
+
       const icon = document.createElement("i");
       icon.className = "form-skill-icon";
       icon.setAttribute("aria-hidden", "true");
