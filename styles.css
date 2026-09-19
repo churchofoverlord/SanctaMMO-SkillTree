@@ -1558,3 +1558,22 @@ footer {
 .has-skill-art .state-mark {
   z-index: 4;
 }
+
+
+/* High-resolution skill artwork presentation */
+.node-icon .skill-art {
+  inset: 5px;
+  border-radius: 1px;
+}
+.core-icon .skill-art {
+  inset: 4px;
+  border-radius: 1px;
+}
+.detail-icon .skill-art {
+  inset: 18px;
+  border-radius: 2px;
+}
+.skill-art > i {
+  image-rendering: auto;
+  background-repeat: no-repeat;
+}
