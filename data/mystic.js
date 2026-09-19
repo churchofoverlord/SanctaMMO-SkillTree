@@ -121,7 +121,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       legacyName: null,
       order: 2,
       description:
-        "Place the fixed Sun or Moon Spirit variant on an eligible Player Group host. Sun periodically grants/refreshes Shield when its nearby-enemy condition is met; Moon periodically applies AoE Slow around the host.",
+        "Sun: Place the Sun Spirit on an eligible Player Group host. It periodically grants/refreshes Shield when its nearby-enemy condition is met. Moon: Place the Moon Spirit on an eligible Player Group host. It periodically applies AoE Slow around the host.",
       keywords: ["Slow", "Shield"],
     },
     {

@@ -10,6 +10,14 @@ const SKILL_ICON_INDEX = new Map(SKILL_ICON_ORDER.map((key, index) => [key.toLow
 const SKILL_ICON_COLS = 10;
 const SKILL_ICON_ROWS = 9;
 const SKILL_ICON_SPRITE = "assets/skill-icons.webp?v=icons-hq-1";
+const DIRECT_SKILL_ICON_SOURCES = new Map([
+  ["mystic/spirit_of_the_orbit_sun", "assets/spirit-orbit-sun.webp?v=spirits-dual-1"],
+  ["mystic/spirit_of_the_orbit_moon", "assets/spirit-orbit-moon.webp?v=spirits-dual-1"],
+  ["mystic/spirit_of_the_star_sun", "assets/spirit-star-sun.webp?v=spirits-dual-1"],
+  ["mystic/spirit_of_the_star_moon", "assets/spirit-star-moon.webp?v=spirits-dual-1"],
+  ["mystic/spirit_of_the_comet_sun", "assets/spirit-comet-sun.webp?v=spirits-dual-1"],
+  ["mystic/spirit_of_the_comet_moon", "assets/spirit-comet-moon.webp?v=spirits-dual-1"],
+]);
 const CLASS_ICON_SOURCES = {
   Fighter: "assets/class-fighter.webp?v=class-emblems-1",
   Mage: "assets/class-mage.webp?v=class-emblems-1",
@@ -35,6 +43,9 @@ const DUAL_FORM_LABELS = {
     "connection": ["Ally", "Enemy"],
     "ritual": ["Ally", "Enemy"],
     "astral-aura": ["Sun Aura", "Moon Aura"],
+    "spirit-of-the-orbit": ["Sun", "Moon"],
+    "spirit-of-the-star": ["Sun", "Moon"],
+    "spirit-of-the-comet": ["Sun", "Moon"],
   },
   Scout: {
     "core-poison-bleed-stance": ["Poison Stance", "Bleed Stance"],
@@ -64,6 +75,9 @@ const SKILL_ICON_OVERRIDES = {
     "connection": ["mystic/Connection_ally", "mystic/Connection_enemy"],
     "ritual": ["mystic/Connection_ally", "mystic/Connection_enemy"],
     "astral-aura": ["mystic/Sun_aura", "mystic/Moon_aura"],
+    "spirit-of-the-orbit": ["mystic/Spirit_of_the_orbit_Sun", "mystic/Spirit_of_the_orbit_Moon"],
+    "spirit-of-the-star": ["mystic/Spirit_of_the_star_Sun", "mystic/Spirit_of_the_star_Moon"],
+    "spirit-of-the-comet": ["mystic/Spirit_of_the_comet_Sun", "mystic/Spirit_of_the_comet_Moon"],
     "nightmare": ["mystic/Nightmare"],
     "black-hole": ["mystic/Black_hole"],
     "white-hole": ["mystic/Black_hole"]
@@ -73,6 +87,10 @@ const SKILL_ICON_OVERRIDES = {
     "core-poison-sac-hemorrhage": ["scout/Poison_sac", "scout/Hemorrhage"]
   }
 };
+function hasSkillIconKey(key) {
+  const normalized = String(key).toLowerCase();
+  return DIRECT_SKILL_ICON_SOURCES.has(normalized) || SKILL_ICON_INDEX.has(normalized);
+}
 function normalizeSkillIconName(value) {
   return String(value)
     .toLowerCase()
@@ -91,7 +109,7 @@ const NORMALIZED_SKILL_ICONS = new Map(
 );
 function skillIconKeys(item) {
   const override = SKILL_ICON_OVERRIDES[currentClass]?.[item.id];
-  if (override) return override.filter((key) => SKILL_ICON_INDEX.has(key.toLowerCase()));
+  if (override) return override.filter(hasSkillIconKey);
   const classKey = currentClass.toLowerCase();
   const baseName = String(item.name)
     .replace(/\s+[IVX]+$/i, "")
@@ -104,7 +122,13 @@ function skillIconKeys(item) {
   return [...new Set(keys)].slice(0, 2);
 }
 function skillIconStyle(key) {
-  const index = SKILL_ICON_INDEX.get(String(key).toLowerCase());
+  const normalizedKey = String(key).toLowerCase();
+  const directSource = DIRECT_SKILL_ICON_SOURCES.get(normalizedKey);
+  if (directSource) {
+    return "background-image:url('" + directSource + "');" +
+      "background-size:cover;background-position:center;";
+  }
+  const index = SKILL_ICON_INDEX.get(normalizedKey);
   if (index == null || !SKILL_ICON_SPRITE) return "";
   const col = index % SKILL_ICON_COLS;
   const row = Math.floor(index / SKILL_ICON_COLS);
