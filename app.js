@@ -10,6 +10,37 @@ const SKILL_ICON_INDEX = new Map(SKILL_ICON_ORDER.map((key, index) => [key.toLow
 const SKILL_ICON_COLS = 10;
 const SKILL_ICON_ROWS = 9;
 const SKILL_ICON_SPRITE = "assets/skill-icons.webp?v=icons-hq-1";
+const CLASS_ICON_SOURCES = {
+  Fighter: "assets/class-fighter.webp?v=class-emblems-1",
+  Mage: "assets/class-mage.webp?v=class-emblems-1",
+  Mystic: "assets/class-mystic.webp?v=class-emblems-1",
+  Scout: "assets/class-scout.webp?v=class-emblems-1",
+};
+const DUAL_FORM_LABELS = {
+  Fighter: {
+    "core-warrior-tank-stance": ["Warrior Stance", "Tank Stance"],
+    "core-rage-bulwark": ["Rage", "Bulwark"],
+    "blade-rush-shield-rush": ["Warrior form", "Tank form"],
+    "battlecry-challenge": ["Warrior form", "Tank form"],
+    "battlerage-chain-challenge": ["Warrior form", "Tank form"],
+    "pressure-provoke": ["Warrior form", "Tank form"],
+    "bloodlust-inspiration": ["Warrior form", "Tank form"],
+    "momentum-mastery": ["Rage", "Bulwark"],
+  },
+  Mystic: {
+    "core-sun-moon-stance": ["Sun Stance", "Moon Stance"],
+    "core-bright-star-full-moon": ["Bright Star", "Full Moon"],
+    "ether": ["Ally", "Enemy"],
+    "tick-tack": ["Ally", "Enemy"],
+    "connection": ["Ally", "Enemy"],
+    "ritual": ["Ally", "Enemy"],
+    "astral-aura": ["Sun Aura", "Moon Aura"],
+  },
+  Scout: {
+    "core-poison-bleed-stance": ["Poison Stance", "Bleed Stance"],
+    "core-poison-sac-hemorrhage": ["Poison Sac", "Hemorrhage"],
+  },
+};
 const SKILL_ICON_OVERRIDES = {
   Fighter: {
     "core-warrior-tank-stance": ["fighter/Warrior_stance", "fighter/Tank_stance"],
@@ -99,6 +130,43 @@ function skillIconFrame(item, className, mark) {
     : "";
   return '<span class="' + className + (art ? " has-skill-art" : "") + '">' +
     art + fallback + stateMark + "</span>";
+}
+function dualFormLabels(item) {
+  const explicit = DUAL_FORM_LABELS[currentClass]?.[item.id];
+  if (explicit?.length) return explicit;
+  const parts = String(item.name || "")
+    .replace(/\s+[IVX]+$/i, "")
+    .split(/\s*\/\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return parts.length >= 2 ? parts.slice(0, 2) : [];
+}
+function formVariantBadge(label, key) {
+  return '<span class="form-variant"><i class="form-skill-icon" aria-hidden="true" style="' +
+    skillIconStyle(key) + '"></i><b>' + label + "</b></span>";
+}
+function formatDescriptionWithFormIcons(item) {
+  const keys = skillIconKeys(item);
+  let html = formatDescription(item.description, item.keywords);
+  if (keys.length < 2) return html;
+
+  let iconIndex = 0;
+  html = html.replace(/<span class="form-label">/g, () => {
+    if (iconIndex >= keys.length) return '<span class="form-label">';
+    const key = keys[iconIndex++];
+    return '<span class="form-label"><i class="form-skill-icon" aria-hidden="true" style="' +
+      skillIconStyle(key) + '"></i>';
+  });
+
+  if (iconIndex < keys.length) {
+    const labels = dualFormLabels(item);
+    const remaining = keys
+      .slice(iconIndex)
+      .map((key, index) => formVariantBadge(labels[iconIndex + index] || "Variant " + (iconIndex + index + 1), key))
+      .join("");
+    if (remaining) html = '<div class="dual-form-legend">' + remaining + "</div>" + html;
+  }
+  return html;
 }
 
 const STORAGE_KEY = "sanctammo-skill-tree-v2";
@@ -285,7 +353,10 @@ function renderTabs() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `class-tab${name === currentClass ? " active" : ""}`;
-    button.textContent = name;
+    button.innerHTML =
+      '<img class="class-tab-icon" src="' + CLASS_ICON_SOURCES[name] + '" alt="" aria-hidden="true"><span>' +
+      name +
+      "</span>";
     button.setAttribute("aria-pressed", String(name === currentClass));
     button.onclick = () => {
       currentClass = name;
@@ -605,7 +676,7 @@ function detailMarkup(item, isCore, status) {
     !isCore && (item.exclusiveNames || []).length
       ? `<p class="exclusive-note"><b>!</b><span>Learning this prevents <strong>${item.exclusiveNames.join(", ")}</strong> until you reset the whole tree.</span></p>`
       : "";
-  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescription(item.description, item.keywords)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
+  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescriptionWithFormIcons(item)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
 }
 function renderInspector() {
   hideKeywordTooltip();
