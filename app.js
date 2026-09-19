@@ -9,9 +9,7 @@ const SKILL_ICON_ORDER = [
 const SKILL_ICON_INDEX = new Map(SKILL_ICON_ORDER.map((key, index) => [key.toLowerCase(), index]));
 const SKILL_ICON_COLS = 10;
 const SKILL_ICON_ROWS = 9;
-const SKILL_ICON_SPRITE = window.__SKILL_ICON_B64
-  ? "data:image/webp;base64," + window.__SKILL_ICON_B64
-  : "";
+const SKILL_ICON_SPRITE = "assets/skill-icons.webp?v=icons-hq-1";
 const SKILL_ICON_OVERRIDES = {
   Fighter: {
     "core-warrior-tank-stance": ["fighter/Warrior_stance", "fighter/Tank_stance"],
