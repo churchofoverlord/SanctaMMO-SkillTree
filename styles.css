@@ -447,25 +447,7 @@ button {
   overflow: hidden;
   border: 1px solid var(--gold);
   border-radius: 2px;
-  background:
-    radial-gradient(
-      circle at 50% 46%,
-      hsl(var(--icon-hue) 100% 64% / 0.75),
-      transparent 18%
-    ),
-    conic-gradient(
-      from 35deg,
-      #02060b,
-      hsl(var(--icon-hue) 78% 36%),
-      #06101b,
-      hsl(calc(var(--icon-hue) + 55) 85% 47%),
-      #02060b
-    );
-  color: #fff;
-  box-shadow:
-    inset 0 0 12px #0008,
-    0 0 0 3px #02070b,
-    0 0 0 4px #6e5936;
+  background: #020308;
   place-items: center;
 }
 
@@ -479,7 +461,7 @@ button {
 .detail-icon::after {
   position: absolute;
   inset: 5px;
-  border: 1px solid #fff2;
+  border: 1px solid rgba(255, 255, 255, 0.10);
   content: "";
 }
 
@@ -1562,15 +1544,15 @@ footer {
 
 /* High-resolution skill artwork presentation */
 .node-icon .skill-art {
-  inset: 5px;
+  inset: 2px;
   border-radius: 1px;
 }
 .core-icon .skill-art {
-  inset: 4px;
+  inset: 2px;
   border-radius: 1px;
 }
 .detail-icon .skill-art {
-  inset: 18px;
+  inset: 8px;
   border-radius: 2px;
 }
 .skill-art > i {
