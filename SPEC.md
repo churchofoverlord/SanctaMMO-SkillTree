@@ -1,6 +1,6 @@
 # Primary Skill Tree — In-Game Implementation Reference
 
-This simulator is the reference for the in-game Primary Skill Tree. The data in `data/` is the source of truth for content and layout; this document fixes the rules, interactions and visuals the game should reproduce. Reference resolution is **1920×1080**, where the tree and the Skill Detail panel sit side by side.
+This simulator is the reference for the in-game Primary Skill Tree. The data in `data/` is the source of truth for content and layout; this document fixes the rules, interactions and visuals the game should reproduce. Reference resolution is **1920×1080**, where the whole tree fits the screen width.
 
 ## 1. Progression rules
 
@@ -41,15 +41,25 @@ The Skill Tree is mouse-only: there is no gamepad or keyboard navigation between
 
 | Input | Result |
 |---|---|
-| Click a slot | Opens Skill Detail for it; never spends SP |
-| Learn button (in Skill Detail) | Buys the investment if Available |
-| Double-click an Available slot | Shortcut for Learn |
-| Learn on an exclusive investment | Confirmation dialog: "This choice locks X until you reset the entire Skill Tree." |
+| Hover a slot (tree, Granted or Universal Action) | Shows the skill tooltip beside the slot; leaving the slot hides it |
+| Click an Available slot | Learns it (1 SP) |
+| Click a Locked or Excluded slot | Nothing is spent; the lock reason is shown |
+| Click an exclusive investment | Confirmation dialog first: "This choice locks X until you reset the entire Skill Tree." |
 | Reset Skill Tree | Confirmation dialog, then clears the build |
-| Form tabs (in Skill Detail) | Switch the inspected form; purchase stays on the parent investment |
-| × | Closes Skill Detail (the simulator also accepts Escape as a convenience) |
 
-Skill Detail shows: slot art, tier and state chip, name, prerequisite note, form tabs (each with its form icon), description with keyword tooltips, execution fields, technical notes, presentation keys, exclusivity warning, Cooldown / Cast Time / Range / Resource Cost / Charges, and the Learn button with the lock reason when it is disabled.
+There is no separate Skill Detail panel: everything a player needs is in the tooltip.
+
+### Skill tooltip
+
+Placed to the right of the slot (to the left when there is no room), top-aligned with it and kept inside the screen. Uses the standard bronze frame; 380px wide, 760px with forms in two columns when the slot has more than three forms (Arcane Burst). Contents, top to bottom:
+
+1. Slot art (64px), tier or `Granted Core` / `Universal Action`, state chip (Available, Learned, Locked, Excluded, Always available) and name.
+2. `Requires:` note when the investment has prerequisites.
+3. One block per form: form icon and name (only when there are several forms), description with coloured keywords, and the Cooldown / Cast Time / Range / Resource Cost / Charges that apply.
+4. Synthesis preview (Mage Weaver), exclusivity warning, Severing stage progress where relevant.
+5. Footer: `Click to learn · 1 SP`, `Learned`, the lock reason, or `Granted · 0 SP`.
+
+Execution fields, technical notes and presentation keys are not player-facing; they live in the data files only.
 
 ## 4. Slot states
 
@@ -60,7 +70,6 @@ Tree slots reuse the action-bar slot: a square icon with a thin edge and a key c
 | Available | 1px gold `#c89a52` | `1 SP` | full colour | Normal |
 | Hover | 1px light gold `#f2cf73` + inner gold line | unchanged | full colour | Hover |
 | Learned | 2px bright gold `#f2cf73` + 16px gold halo; 350ms pulse when learned | `✓` in gold | full colour | Pronto |
-| Selected (open in detail) | 2px cyan `#35c7d4` + cyan glow | unchanged | unchanged | Selecionado |
 | Locked (tier / requires / cap) | 1px grey `#39414a` | lock, grey | greyscale, 45% brightness | Não comprada (without the red X) |
 | Excluded | 1px red `#d4453f` | lock, red | greyscale, 45% brightness | Fora de alcance |
 

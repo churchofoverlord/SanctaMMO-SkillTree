@@ -15,7 +15,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=hud-2" />
+    <link rel="stylesheet" href="styles.css?v=hud-3" />
   </head>
   <body data-class="fighter">
     <div class="app-shell">
@@ -85,7 +85,7 @@
             <span><i></i>Prerequisite</span
             ><span><i class="choice-key"></i>Choose one</span
             ><small
-              >Linked skills share a column across tiers</small
+              >Hover a skill for details · click to learn</small
             >
           </div>
           <div class="keyword-legend" aria-label="Combat keyword categories">
@@ -131,17 +131,6 @@
           <div id="appendixHolder"></div>
         </section>
 
-        <aside class="inspector" id="inspector" aria-label="Skill Detail">
-          <button
-            class="inspector-close"
-            id="inspectorClose"
-            type="button"
-            aria-label="Close Skill Detail"
-          >
-            ×
-          </button>
-          <div id="inspectorContent" class="inspector-content"></div>
-        </aside>
       </main>
 
       <footer>
@@ -149,6 +138,13 @@
         ><span>13 Primary Skill Points available by level 15.</span>
       </footer>
     </div>
+
+    <div
+      id="skillTooltip"
+      class="skill-tooltip framed-panel"
+      role="tooltip"
+      aria-hidden="true"
+    ></div>
 
     <dialog
       id="confirmDialog"
@@ -169,13 +165,13 @@
       window.SKILL_TREE_DATA = window.SKILL_TREE_DATA || {};
     </script>
 
-    <script src="data/icons.js?v=hud-2"></script>
-    <script src="data/fighter.js?v=hud-2"></script>
-    <script src="data/scout.js?v=hud-2"></script>
-    <script src="data/mage.js?v=hud-2"></script>
-    <script src="data/mystic.js?v=hud-2"></script>
-    <script src="debuff-tooltips.js?v=hud-2"></script>
-    <script src="description-format.js?v=hud-2"></script>
-    <script src="app.js?v=hud-2"></script>
+    <script src="data/icons.js?v=hud-3"></script>
+    <script src="data/fighter.js?v=hud-3"></script>
+    <script src="data/scout.js?v=hud-3"></script>
+    <script src="data/mage.js?v=hud-3"></script>
+    <script src="data/mystic.js?v=hud-3"></script>
+    <script src="debuff-tooltips.js?v=hud-3"></script>
+    <script src="description-format.js?v=hud-3"></script>
+    <script src="app.js?v=hud-3"></script>
   </body>
 </html>
