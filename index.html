@@ -15,8 +15,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=hud-1" />
-    <link rel="stylesheet" href="class-header-icons.css?v=hud-1" />
+    <link rel="stylesheet" href="styles.css?v=hud-2" />
   </head>
   <body data-class="fighter">
     <div class="app-shell">
@@ -119,6 +118,16 @@
           </div>
           <div class="tree-shell framed-panel"><div id="tree"></div></div>
           <div class="notice" id="notice" aria-live="polite"></div>
+          <section
+            class="state-legend framed-panel"
+            aria-labelledby="stateLegendTitle"
+          >
+            <header>
+              <h2 id="stateLegendTitle" class="section-label">Node states</h2>
+              <span>Reference for the in-game Skill Tree slot</span>
+            </header>
+            <div class="state-legend-grid" id="stateLegend"></div>
+          </section>
           <div id="appendixHolder"></div>
         </section>
 
@@ -160,14 +169,13 @@
       window.SKILL_TREE_DATA = window.SKILL_TREE_DATA || {};
     </script>
 
-    <script src="data/fighter.js?v=contextual-forms-1"></script>
-    <script src="data/scout.js?v=contextual-forms-1"></script>
-    <script src="data/mage.js?v=contextual-forms-1"></script>
-    <script src="data/mystic.js?v=contextual-forms-1"></script>
-    <script src="debuff-tooltips.js?v=mystic-rebalance-1"></script>
-    <script src="description-format.js?v=mystic-rebalance-1"></script>
-    <script src="app.js?v=hud-1"></script>
-    <script src="class-header-icons.js?v=class-header-1"></script>
-    <script src="manifest-weave-icons.js?v=manifest-weave-2"></script>
+    <script src="data/icons.js?v=hud-2"></script>
+    <script src="data/fighter.js?v=hud-2"></script>
+    <script src="data/scout.js?v=hud-2"></script>
+    <script src="data/mage.js?v=hud-2"></script>
+    <script src="data/mystic.js?v=hud-2"></script>
+    <script src="debuff-tooltips.js?v=hud-2"></script>
+    <script src="description-format.js?v=hud-2"></script>
+    <script src="app.js?v=hud-2"></script>
   </body>
 </html>

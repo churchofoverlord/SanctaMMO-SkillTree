@@ -23,6 +23,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "core-cleanse",
       "name": "Cleanse",
+      "iconKeys": [
+        "mystic/cleanse"
+      ],
       "description": "Remove all Debuffs and persistent CC from yourself or an eligible ally and break current Forced Displacement.",
       "keywords": [
         "Forced Displacement",
@@ -73,6 +76,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/cleanse",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -84,6 +88,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "core-sun-moon-stance",
       "name": "Sun / Moon Stance",
+      "iconKeys": [
+        "mystic/sun_stance",
+        "mystic/moon_stance"
+      ],
       "description": "Sun Stance: Beneficial Skills can generate Sun Charges.\nMoon Stance: Hostile Skills can generate Moon Charges.",
       "keywords": [],
       "fields": {
@@ -127,6 +135,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/sun_stance",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -160,6 +169,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/moon_stance",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -171,6 +181,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "core-bright-star-full-moon",
       "name": "Bright Star / Full Moon",
+      "iconKeys": [
+        "mystic/bright_star",
+        "mystic/full_moon"
+      ],
       "description": "Bright Star: At maximum Sun Charges, consume them and grant a Shield to allies around you.\nFull Moon: At maximum Moon Charges, consume them and launch a ground-point projectile for X Magical Damage and Silence in an area.",
       "keywords": [
         "Shield",
@@ -221,6 +235,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/bright_star",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -259,6 +274,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/full_moon",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -272,6 +288,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "ether",
       "name": "Ether I",
+      "iconKeys": [
+        "mystic/ether_ally",
+        "mystic/ether_enemy"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -292,6 +312,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 1,
+      "column": 1,
       "description": "Ether I — Ally: Launch a targeted projectile that heals one ally for X.\nEther I — Enemy: Launch a targeted projectile that deals X Magical Damage to one enemy.",
       "keywords": [
         "Heal",
@@ -329,6 +350,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/ether_ally",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -365,6 +387,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/ether_enemy",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -376,6 +399,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "spirit-of-the-orbit",
       "name": "Spirit of the Orbit",
+      "iconKeys": [
+        "mystic/spirit_of_the_orbit_sun",
+        "mystic/spirit_of_the_orbit_moon"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -397,6 +424,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 2,
+      "column": 2,
       "description": "Spirit of the Orbit — Sun: Place the Sun Spirit on an eligible Player Group host. At cadence, grant or refresh Shield when its nearby-enemy condition is met.\nSpirit of the Orbit — Moon: Place the Moon Spirit on an eligible Player Group host. At cadence, apply AoE Slow around the host.",
       "keywords": [
         "Shield",
@@ -432,6 +460,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_orbit_sun",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -466,6 +495,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_orbit_moon",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -477,6 +507,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "cosmic-ray",
       "name": "Cosmic Ray I",
+      "iconKeys": [
+        "mystic/cosmic_ray"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -498,6 +531,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 3,
+      "column": 3,
       "description": "Launch an astral projectile at an ally. After X seconds, Heal that ally if they are still alive.",
       "keywords": [],
       "forms": [
@@ -528,6 +562,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": "Cast on an ally. At fixed ResolveAt after X seconds, heal X HP. The manifestation may visually track the target, but movement/teleport cannot delay resolution. If the bound life/incarnation dies before ResolveAt, the cast is lost.",
           "presentation": {
+            "iconKey": "mystic/cosmic_ray",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -539,6 +574,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "connection",
       "name": "Connection I",
+      "iconKeys": [
+        "mystic/connection_ally",
+        "mystic/connection_enemy"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -560,6 +599,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 4,
+      "column": 4,
       "description": "Connection I — Ally: Apply Bliss and periodic Heal to an ally. The tether ends if maximum range is broken.\nConnection I — Enemy: Apply Curse and periodic X Magical Damage to an enemy. The tether ends if maximum range is broken.",
       "keywords": [
         "Bliss",
@@ -600,6 +640,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "An activation creates a Connection only if its own initial main-target Bliss application succeeds. Invalid target, PvP ineligibility, first-source exclusivity or any normal application failure creates no tether, completion or ChargeGrantEvent; committed cooldown/resource is not refunded unless explicitly authored. Successful creation is the only ChargeGrantEvent for the activation. Each Connection has one concrete instance/source/target execution and one terminal reason. Range checks may break early. At natural-expiry deadline, revalidate original target/life, branch validity and Mystic-target distance within MaxConnectionRange; failure ends Broken/Invalid with no completion. Success runs the authored completion once. Early break removes only this Connection contributions using provenance-safe removal.",
           "presentation": {
+            "iconKey": "mystic/connection_ally",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -637,6 +678,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "An activation creates a Connection only if its own initial main-target Curse application succeeds. Invalid target, PvP ineligibility, first-source exclusivity or any normal application failure creates no tether, completion or ChargeGrantEvent; committed cooldown/resource is not refunded unless explicitly authored. Successful creation is the only ChargeGrantEvent for the activation. Each Connection has one concrete instance/source/target execution and one terminal reason. Range checks may break early. At natural-expiry deadline, revalidate original target/life, branch validity and Mystic-target distance within MaxConnectionRange; failure ends Broken/Invalid with no completion. Success runs the authored completion once. Early break removes only this Connection contributions using provenance-safe removal.",
           "presentation": {
+            "iconKey": "mystic/connection_enemy",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -648,6 +690,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "lullaby",
       "name": "Lullaby I",
+      "iconKeys": [
+        "mystic/lullaby"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -668,6 +713,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 5,
+      "column": 5,
       "description": "Launch a projectile at an enemy. After X seconds, apply Sleep.",
       "keywords": [
         "Sleep"
@@ -702,6 +748,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/lullaby",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -713,6 +760,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "astral-aura",
       "name": "Sun Aura / Moon Aura",
+      "iconKeys": [
+        "mystic/sun_aura",
+        "mystic/moon_aura"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -733,6 +784,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 6,
+      "column": 6,
       "description": "Sun Aura: While Sun Stance is active, the shared periodic aura grants HP Regeneration and Movement Speed to nearby eligible allies. It follows stance changes.\nMoon Aura: While Moon Stance is active, the shared periodic aura grants MP Regeneration, Physical Attack and Magical Attack to nearby eligible allies. It follows stance changes.",
       "keywords": [
         "Regeneration",
@@ -774,6 +826,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "The aura is a toggle using one shared periodic pulse around the Mystic. Sun mode grants HP Regeneration plus Movement Speed; Moon mode grants MP Regeneration plus Physical Attack and Magical Attack. The active mode follows stance changes; nearby eligible allies may receive an immediate updated pulse on a stance change.",
           "presentation": {
+            "iconKey": "mystic/sun_aura",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -812,6 +865,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "The aura is a toggle using one shared periodic pulse around the Mystic. Sun mode grants HP Regeneration plus Movement Speed; Moon mode grants MP Regeneration plus Physical Attack and Magical Attack. The active mode follows stance changes; nearby eligible allies may receive an immediate updated pulse on a stance change.",
           "presentation": {
+            "iconKey": "mystic/moon_aura",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -823,6 +877,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "astral-step",
       "name": "Astral Step",
+      "iconKeys": [
+        "mystic/astral_step"
+      ],
       "tier": 1,
       "cost": 1,
       "fields": {
@@ -844,6 +901,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 7,
+      "column": 7,
       "description": "Teleport yourself beside a valid ally or enemy anchor. Only the Mystic moves.",
       "keywords": [],
       "forms": [
@@ -874,6 +932,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": "Target an ally or enemy and teleport yourself to a valid position beside them. The anchor is not moved. Root on the Mystic at TeleportResolve blocks relocation.",
           "presentation": {
+            "iconKey": "mystic/astral_step",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -885,6 +944,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "tick-tack",
       "name": "Ether II",
+      "iconKeys": [
+        "mystic/ether_ally",
+        "mystic/ether_enemy"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -908,6 +971,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 1,
+      "column": 1,
       "description": "Ether II — Ally: Keep Ether I healing. If the ally has a Buff, also grant Haste and Acumen.\nEther II — Enemy: Keep Ether I damage. If the enemy has a Debuff, also apply Hindered and Dazed.",
       "keywords": [
         "Heal",
@@ -952,6 +1016,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/ether_ally",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -989,6 +1054,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/ether_enemy",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1000,6 +1066,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "resurrect",
       "name": "Resurrect",
+      "iconKeys": [
+        "mystic/resurrect"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -1020,6 +1089,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 2,
+      "column": 6,
       "description": "High-commitment close-range combat resurrection under the current resurrection rules.",
       "keywords": [],
       "forms": [
@@ -1050,6 +1120,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/resurrect",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1061,6 +1132,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "spirit-of-the-star",
       "name": "Spirit of the Star",
+      "iconKeys": [
+        "mystic/spirit_of_the_star_sun",
+        "mystic/spirit_of_the_star_moon"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -1087,6 +1162,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 3,
+      "column": 2,
       "description": "Spirit of the Star — Sun: Every third eligible Skill used by the host grants Clarity.\nSpirit of the Star — Moon: Every third eligible Skill applies Withering to hostile primary-hit targets; if none are hit, arm one bounded Pending Withering for the next eligible hostile-hit Skill.",
       "keywords": [
         "Clarity",
@@ -1123,6 +1199,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends. Count eligible Skills per captured variant: resolve each third trigger after the direct-result window; apply once per deduplicated hostile target, or arm at most one bounded Pending Withering if there were no hostile hits. Pending is consumed once by the next eligible SkillExecution with a hostile primary hit; consumption and a third trigger in the same execution deduplicate applications and do not create two Pendings. Pending expiry remains OPEN.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_star_sun",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1158,6 +1235,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends. Count eligible Skills per captured variant: resolve each third trigger after the direct-result window; apply once per deduplicated hostile target, or arm at most one bounded Pending Withering if there were no hostile hits. Pending is consumed once by the next eligible SkillExecution with a hostile primary hit; consumption and a third trigger in the same execution deduplicate applications and do not create two Pendings. Pending expiry remains OPEN.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_star_moon",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1169,6 +1247,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "cosmic-rays",
       "name": "Cosmic Ray II",
+      "iconKeys": [
+        "mystic/cosmic_ray"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -1193,6 +1274,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 4,
+      "column": 3,
       "description": "Increase Cosmic Ray charges to X. Charges recover one at a time.",
       "keywords": [],
       "forms": [
@@ -1222,6 +1304,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": "Increase Cosmic Ray Max Charges from 1 to authored X. Each Charge can maintain an independent delayed heal, including multiple casts on the same ally.",
           "presentation": {
+            "iconKey": "mystic/cosmic_ray",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1233,6 +1316,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "serenity",
       "name": "Serenity",
+      "iconKeys": [
+        "mystic/serenity"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -1254,6 +1340,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 5,
+      "column": 7,
       "description": "Ground point with one delayed resolution. Heal eligible allies in the area and apply Sleep to enemies. It is not a persistent ticking zone.",
       "keywords": [
         "Sleep"
@@ -1288,6 +1375,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Target an area. After X seconds, heal eligible allies inside for X HP and apply Sleep for X seconds to enemies inside. One delayed resolution; not a persistent zone.",
           "presentation": {
+            "iconKey": "mystic/serenity",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1299,6 +1387,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "astral-pull",
       "name": "Astral Pull",
+      "iconKeys": [
+        "mystic/astral_pull"
+      ],
       "tier": 4,
       "cost": 1,
       "fields": {
@@ -1320,6 +1411,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 2,
+      "column": 2,
       "description": "After X seconds, teleport an eligible Party or Raid ally beside the Mystic if the destination is valid.",
       "keywords": [],
       "forms": [
@@ -1350,6 +1442,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": "After X seconds, teleport the target to a valid position beside the Mystic. If the target is Rooted at TeleportResolve, relocation fails. Successful relocation cancels target Forced Displacement immediately before teleport.",
           "presentation": {
+            "iconKey": "mystic/astral_pull",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1361,6 +1454,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "spirit-of-the-comet",
       "name": "Spirit of the Comet",
+      "iconKeys": [
+        "mystic/spirit_of_the_comet_sun",
+        "mystic/spirit_of_the_comet_moon"
+      ],
       "tier": 3,
       "cost": 1,
       "fields": {
@@ -1387,6 +1484,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 1,
+      "column": 2,
       "description": "Spirit of the Comet — Sun: Every third eligible Basic Attack grants Omnivamp to the host.\nSpirit of the Comet — Moon: Every third eligible Basic Attack applies Wounded to all valid enemies hit by that attack.",
       "keywords": [
         "Omnivamp",
@@ -1423,6 +1521,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_comet_sun",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1458,6 +1557,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Stance is captured at cast. Require an eligible Player Group host in the same life/incarnation. Resolve host slot (Host, base SpiritType) before owner-capacity eviction. Same owner + same variant refreshes without healing or ownership transfer and preserves HP/proc counter/Pending. Opposite Sun/Moon variant by same owner replaces in the same slot, preserves HP, resets proc counter and clears variant-specific Pending. Another owner cannot replace this SpiritType on the host. Remove it when host leaves the Player Group or life/incarnation ends.",
           "presentation": {
+            "iconKey": "mystic/spirit_of_the_comet_moon",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1469,6 +1569,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "nightmare",
       "name": "Lullaby II",
+      "iconKeys": [
+        "mystic/nightmare"
+      ],
       "tier": 3,
       "cost": 1,
       "fields": {
@@ -1495,6 +1598,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 2,
+      "column": 5,
       "description": "After casting Lullaby, this follow-up is available for X seconds. Target any enemy with Sleep; on hit deal X magical damage and apply Fear.",
       "keywords": [
         "magical damage",
@@ -1534,6 +1638,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "After casting Lullaby, Nightmare is available for X seconds. Cast on any enemy currently affected by Sleep to deal X Magical Damage, then apply Fear for X seconds. The Sleep may come from any source.",
           "presentation": {
+            "iconKey": "mystic/nightmare",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1545,6 +1650,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "black-hole",
       "name": "Black Hole I",
+      "iconKeys": [
+        "mystic/black_hole"
+      ],
       "tier": 2,
       "cost": 1,
       "fields": {
@@ -1566,6 +1674,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 6,
+      "column": 8,
       "description": "Create an area at a ground point. Enemies inside when it appears are pulled once toward the centre by a slow Forced Displacement. Enemies entering later are not pulled.",
       "keywords": [
         "Slow",
@@ -1602,6 +1711,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "Create Black Hole at the target location. On initial resolution, query enemies currently inside and issue one slow Forced Displacement toward the center for each eligible target. Later entrants are not retroactively pulled.",
           "presentation": {
+            "iconKey": "mystic/black_hole",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1613,6 +1723,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "astral-veil",
       "name": "Astral Veil",
+      "iconKeys": [
+        "mystic/astral_veil"
+      ],
       "tier": 4,
       "cost": 1,
       "fields": {
@@ -1634,6 +1747,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 3,
+      "column": 3,
       "description": "Place one temporary barrier that intercepts gameplay-classified projectiles from either side. It does not block character movement or LOS and has no HP.",
       "keywords": [],
       "forms": [
@@ -1664,6 +1778,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           "keywords": [],
           "technicalNotes": "Create Astral Veil for X seconds. Gameplay-classified Projectiles crossing from either side are Intercepted and terminate without ordinary impact payload unless explicitly authored otherwise. Does not block characters, LOS, beams, cones, instant attacks or ground-targeted effects. Max one active.",
           "presentation": {
+            "iconKey": "mystic/astral_veil",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1675,6 +1790,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "eclipse",
       "name": "Eclipse",
+      "iconKeys": [
+        "mystic/eclipse"
+      ],
       "tier": 4,
       "cost": 1,
       "fields": {
@@ -1695,6 +1813,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 1,
+      "column": 1,
       "description": "Preserve Sun and Moon charge pools when changing Stance. When both pools are maximum, Eclipse becomes a separate clickable ground-point payoff with its own cooldown; consume both pools to Shield allies and deal X magical damage + Silence to enemies in the area.",
       "keywords": [
         "magical damage",
@@ -1733,6 +1852,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": null,
           "presentation": {
+            "iconKey": "mystic/eclipse",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1744,6 +1864,10 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "ritual",
       "name": "Connection II",
+      "iconKeys": [
+        "mystic/connection_ally",
+        "mystic/connection_enemy"
+      ],
       "tier": 3,
       "cost": 1,
       "fields": {
@@ -1768,6 +1892,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 3,
+      "column": 4,
       "description": "Connection II — Ally: Keep Ally Connection effects and also grant Swiftness. On natural full duration, heal the main target and spread Bliss and Swiftness.\nConnection II — Enemy: Keep Enemy Connection effects and also apply Slow. On natural full duration, Root the main target and spread Curse and Slow.",
       "keywords": [
         "Bliss",
@@ -1811,6 +1936,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "An activation creates a Connection only if its own initial main-target Bliss application succeeds. Invalid target, PvP ineligibility, first-source exclusivity or any normal application failure creates no tether, completion or ChargeGrantEvent; committed cooldown/resource is not refunded unless explicitly authored. Successful creation is the only ChargeGrantEvent for the activation. Each Connection has one concrete instance/source/target execution and one terminal reason. Range checks may break early. At natural-expiry deadline, revalidate original target/life, branch validity and Mystic-target distance within MaxConnectionRange; failure ends Broken/Invalid with no completion. Success runs the authored completion once. Early break removes only this Connection contributions using provenance-safe removal. Ritual completion/spread creates no additional ChargeGrantEvent.",
           "presentation": {
+            "iconKey": "mystic/connection_ally",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1849,6 +1975,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "An activation creates a Connection only if its own initial main-target Curse application succeeds. Invalid target, PvP ineligibility, first-source exclusivity or any normal application failure creates no tether, completion or ChargeGrantEvent; committed cooldown/resource is not refunded unless explicitly authored. Successful creation is the only ChargeGrantEvent for the activation. Each Connection has one concrete instance/source/target execution and one terminal reason. Range checks may break early. At natural-expiry deadline, revalidate original target/life, branch validity and Mystic-target distance within MaxConnectionRange; failure ends Broken/Invalid with no completion. Success runs the authored completion once. Early break removes only this Connection contributions using provenance-safe removal. Ritual completion/spread creates no additional ChargeGrantEvent.",
           "presentation": {
+            "iconKey": "mystic/connection_enemy",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null
@@ -1860,6 +1987,9 @@ window.SKILL_TREE_DATA["Mystic"] = {
     {
       "id": "white-hole",
       "name": "Black Hole II",
+      "iconKeys": [
+        "mystic/black_hole"
+      ],
       "tier": 3,
       "cost": 1,
       "fields": {
@@ -1884,6 +2014,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
       "exclusiveNames": [],
       "legacyName": null,
       "order": 4,
+      "column": 8,
       "description": "When Black Hole expires, perform a new area check and deal X magical damage + Silence to enemies still inside.",
       "keywords": [
         "magical damage",
@@ -1919,6 +2050,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
           ],
           "technicalNotes": "When Black Hole ends, perform a new independent area query. Enemies currently inside take X Magical Damage and are Silenced for X seconds.",
           "presentation": {
+            "iconKey": "mystic/black_hole",
             "vfxKey": null,
             "animationKey": null,
             "audioKey": null

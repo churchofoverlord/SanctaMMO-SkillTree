@@ -43,12 +43,12 @@ jobs:
             URL="http://127.0.0.1:4173/?class=$CLASS"
             DOM="/tmp/rendered-$CLASS.html"
             PNG="/tmp/skill-tree-$CLASS.png"
-            "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2200 --window-size=1440,1100 --dump-dom "$URL" >"$DOM"
+            "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2200 --window-size=1920,1080 --dump-dom "$URL" >"$DOM"
             NODE_COUNT="$(grep -o 'class=\"skill-node' "$DOM" | wc -l)"
             test "$NODE_COUNT" -eq 20
             grep -q ">$CLASS<" "$DOM"
             grep -q 'Primary Skill Trees' "$DOM"
-            "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2200 --window-size=1440,1100 --screenshot="$PNG" "$URL"
+            "$CHROME" --headless --no-sandbox --disable-gpu --hide-scrollbars --virtual-time-budget=2200 --window-size=1920,1080 --screenshot="$PNG" "$URL"
           done
           grep -q 'Severing Strike' /tmp/rendered-Fighter.html
           grep -q 'Arcane Weaving' /tmp/rendered-Mage.html
