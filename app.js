@@ -343,8 +343,7 @@ function renderTree() {
     const unlocked = tierUnlocked(tier),
       section = document.createElement("section");
     section.className = `tier-section tier-${tier}${unlocked ? " unlocked" : " locked"}`;
-    const need = Math.max(0, threshold(tier) - learnedCount());
-    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong>${unlocked ? "" : `<small class="tier-need">Spend ${need} more SP</small>`}</header>`;
+    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong></header>`;
     const nodes = document.createElement("div");
     nodes.className = "tier-nodes";
     classData()
