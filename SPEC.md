@@ -37,6 +37,8 @@ An investment's state is resolved in this order; the first match wins and its re
 
 ## 3. Interactions
 
+The Skill Tree is mouse-only: there is no gamepad or keyboard navigation between slots.
+
 | Input | Result |
 |---|---|
 | Click a slot | Opens Skill Detail for it; never spends SP |
@@ -45,7 +47,7 @@ An investment's state is resolved in this order; the first match wins and its re
 | Learn on an exclusive investment | Confirmation dialog: "This choice locks X until you reset the entire Skill Tree." |
 | Reset Skill Tree | Confirmation dialog, then clears the build |
 | Form tabs (in Skill Detail) | Switch the inspected form; purchase stays on the parent investment |
-| Escape / × | Closes Skill Detail |
+| × | Closes Skill Detail (the simulator also accepts Escape as a convenience) |
 
 Skill Detail shows: slot art, tier and state chip, name, prerequisite note, form tabs (each with its form icon), description with keyword tooltips, execution fields, technical notes, presentation keys, exclusivity warning, Cooldown / Cast Time / Range / Resource Cost / Charges, and the Learn button with the lock reason when it is disabled.
 
@@ -96,4 +98,3 @@ Keyword colours: Buff `#8de8b6`, HoT `#fff0a3`, Shield `#e4e6ee`, DoT `#ff8f8a`,
 ## 7. Open items
 
 - Numeric values (Cooldown, Range, Resource Cost) are still placeholders (`X seconds`, `X m`, `X MP`).
-- Gamepad / keyboard focus order between slots is not defined yet.
