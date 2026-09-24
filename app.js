@@ -404,7 +404,7 @@ function renderBuildStatus() {
   document.getElementById("progressFill").style.width =
     `${(count / maxSp()) * 100}%`;
   const milestones = [1, 2, 3, 4]
-    .map((tier) => ({ value: threshold(tier), label: `Tier ${toRoman(tier)}` }))
+    .map((tier) => ({ value: threshold(tier), label: `<span>Tier </span>${toRoman(tier)}` }))
     .concat({ value: maxSp(), label: "Cap" });
   document.getElementById("milestones").innerHTML = milestones
     .map(
@@ -546,7 +546,7 @@ function renderTree() {
   board.className = "vertical-tree";
   const familyLayout = buildFamilyLayout();
   board.style.setProperty("--family-columns", familyLayout.count);
-  board.style.minWidth = `${Math.max(980, familyLayout.count * 127 + 32)}px`;
+  board.style.minWidth = `${Math.max(900, familyLayout.count * 96 + 120)}px`;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.classList.add("relations");
   svg.setAttribute("aria-hidden", "true");
@@ -556,7 +556,7 @@ function renderTree() {
   for (const family of familyLayout.families) {
     const header = document.createElement("span");
     header.style.gridColumn = `${family.startColumn} / span ${family.width}`;
-    header.innerHTML = `<b>${family.number}</b><em>${family.label}</em>`;
+    header.innerHTML = `<b><i>${family.number}</i></b><em>${family.label}</em>`;
     familyHeaders.append(header);
   }
   board.append(familyHeaders);
@@ -565,7 +565,7 @@ function renderTree() {
       section = document.createElement("section");
     section.className = `tier-section tier-${tier}${unlocked ? " unlocked" : " locked"}`;
     const need = Math.max(0, threshold(tier) - learnedCount());
-    section.innerHTML = `<header><div><span>Tier ${toRoman(tier)}</span>${unlocked ? "" : `<strong>LOCKED</strong>`}</div><small>${unlocked ? "OPEN" : `Spend ${need} more SP to unlock`} · ${classData().tierCounts[String(tier)]} investments</small></header>`;
+    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong>${unlocked ? "" : `<small class="tier-need">Spend ${need} more SP</small>`}<small class="tier-count">${classData().tierCounts[String(tier)]} investments</small></header>`;
     const nodes = document.createElement("div");
     nodes.className = "tier-nodes";
     classData()
@@ -772,7 +772,7 @@ function renderInspector() {
   if (!inspected) {
     panel.classList.remove("open");
     root.innerHTML =
-      '<div class="inspector-empty"><span>✦</span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
+      '<div class="inspector-empty"><span><i>✦</i></span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
     return;
   }
   if (inspected.type === "core" || inspected.type === "action") {
@@ -832,14 +832,19 @@ function renderAll() {
   renderInspector();
 }
 document.getElementById("resetClass").onclick = resetTree;
-document.getElementById("inspectorClose").onclick = () => {
+function closeInspector() {
   inspected = null;
   renderInspector();
   renderCore();
   document
     .querySelectorAll(".skill-node.inspected")
     .forEach((x) => x.classList.remove("inspected"));
-};
+}
+document.getElementById("inspectorClose").onclick = closeInspector;
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && inspected && !document.getElementById("confirmDialog").open)
+    closeInspector();
+});
 document.getElementById("confirmDialog").addEventListener("click", (e) => {
   if (e.target === e.currentTarget) e.currentTarget.close();
 });
