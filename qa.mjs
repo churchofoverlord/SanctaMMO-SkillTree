@@ -209,7 +209,7 @@ const expectedNames = {
     "Cosmic Ray I",
     "Connection I",
     "Lullaby I",
-    "Astral Aura",
+    "Sun Aura / Moon Aura",
     "Astral Step",
     "Ether II",
     "Resurrect",

@@ -209,7 +209,7 @@ window.SKILL_TREE_DATA["Mystic"] = {
     },
     {
       id: "astral-aura",
-      name: "Astral Aura",
+      name: "Sun Aura / Moon Aura",
       tier: 1,
       cost: 1,
       fields: {
