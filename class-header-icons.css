@@ -42,8 +42,6 @@
   .class-tab {
     flex: 1 1 0;
     min-width: 0;
-    padding: 9px 4px;
-    font-size: clamp(13px, 4.2vw, 17px);
   }
 
   .brand-mark > img {

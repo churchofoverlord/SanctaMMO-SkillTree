@@ -150,7 +150,7 @@ function skillIconFrame(item, className, mark) {
     : '<i class="fallback-sigil' + (className === "node-icon" ? " icon-sigil" : "") + '" aria-hidden="true"></i><b>' +
       initials(item.name) + "</b>";
   const stateMark = mark
-    ? '<i class="state-mark" aria-hidden="true">' + mark + "</i>"
+    ? '<i class="slot-chip" aria-hidden="true">' + mark + "</i>"
     : "";
   return '<span class="' + className + (art ? " has-skill-art" : "") + '">' +
     art + fallback + stateMark + "</span>";
@@ -282,6 +282,7 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "tier",
       reason: `Locked — Spend ${more} more SP to unlock Tier ${toRoman(node.tier)}`,
     };
   }
@@ -290,6 +291,7 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "requires",
       reason: `Locked — Requires ${missing.map((id) => byId(id)?.name || id).join(" + ")}`,
     };
   const excluded = (node.exclusiveWith || []).filter((id) => set.has(id));
@@ -297,12 +299,14 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "exclusive",
       reason: `Locked — Cannot be learned with ${excluded.map((id) => byId(id)?.name || id).join(", ")}`,
     };
   if (learnedCount() >= maxSp())
     return {
       code: "locked",
       label: "Locked",
+      lock: "cap",
       reason: `Locked — Maximum ${maxSp()} Skill Points reached`,
     };
   return {
@@ -404,7 +408,7 @@ function renderBuildStatus() {
   document.getElementById("progressFill").style.width =
     `${(count / maxSp()) * 100}%`;
   const milestones = [1, 2, 3, 4]
-    .map((tier) => ({ value: threshold(tier), label: `Tier ${toRoman(tier)}` }))
+    .map((tier) => ({ value: threshold(tier), label: `<span>Tier </span>${toRoman(tier)}` }))
     .concat({ value: maxSp(), label: "Cap" });
   document.getElementById("milestones").innerHTML = milestones
     .map(
@@ -447,11 +451,13 @@ function renderUniversalActions() {
     root.append(button);
   }
 }
+const LOCK_GLYPH =
+  '<svg viewBox="0 0 10 12" width="8" height="10"><path d="M2.6 5.2V3.6a2.4 2.4 0 0 1 4.8 0v1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="5.2" width="8" height="6.3" rx="1.2" fill="currentColor"/></svg>';
 function createNode(node) {
   const status = nodeState(node),
     button = document.createElement("button");
   button.type = "button";
-  button.className = `skill-node state-${status.code}${inspected?.type === "node" && inspected.id === node.id ? " inspected" : ""}`;
+  button.className = `skill-node state-${status.code}${status.lock ? ` lock-${status.lock}` : ""}${inspected?.type === "node" && inspected.id === node.id ? " inspected" : ""}`;
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
   button.dataset.order = node.order;
@@ -462,7 +468,11 @@ function createNode(node) {
     `${node.name}. ${status.reason}. Open details.`,
   );
   const mark =
-    status.code === "learned" ? "✓" : status.code === "locked" ? "🔒" : "";
+    status.code === "learned"
+      ? "✓"
+      : status.code === "locked"
+        ? LOCK_GLYPH
+        : "1 SP";
   button.innerHTML = `${skillIconFrame(node, "node-icon", mark)}<strong>${node.name}</strong>`;
   button.onclick = () => inspect("node", node.id);
   button.ondblclick = (event) => {
@@ -510,33 +520,45 @@ function buildFamilyLayout() {
     );
     return firstA - firstB || a.canonicalIndex - b.canonicalIndex;
   });
+  // Pack families into shared columns: a family keeps one column (or several,
+  // for side-by-side nodes) through its whole tier span, and families whose
+  // tier spans don't overlap can reuse the same column.
   const columns = new Map();
-  let nextColumn = 1;
-  orderedFamilies.forEach((family, familyIndex) => {
+  const occupied = new Map();
+  const isFree = (column, fromTier, toTier) => {
+    for (let tier = fromTier; tier <= toTier; tier++)
+      if (occupied.has(`${column}:${tier}`)) return false;
+    return true;
+  };
+  let count = 0;
+  orderedFamilies.forEach((family) => {
+    const tiers = family.nodes.map((node) => node.tier);
+    const fromTier = Math.min(...tiers),
+      toTier = Math.max(...tiers);
     const width = Math.max(
       ...[1, 2, 3, 4].map(
         (tier) => family.nodes.filter((node) => node.tier === tier).length,
       ),
     );
+    let start = 1;
+    while (
+      !Array.from({ length: width }, (_, i) => start + i).every((column) =>
+        isFree(column, fromTier, toTier),
+      )
+    )
+      start++;
+    for (let column = start; column < start + width; column++)
+      for (let tier = fromTier; tier <= toTier; tier++)
+        occupied.set(`${column}:${tier}`, true);
     for (let tier = 1; tier <= 4; tier++) {
       family.nodes
         .filter((node) => node.tier === tier)
         .sort((a, b) => a.order - b.order)
-        .forEach((node, index) => columns.set(node.id, nextColumn + index));
+        .forEach((node, index) => columns.set(node.id, start + index));
     }
-    const roots = family.nodes
-      .filter((node) => !(node.requires || []).length)
-      .sort((a, b) => a.tier - b.tier || a.order - b.order);
-    family.startColumn = nextColumn;
-    family.width = width;
-    family.number = familyIndex + 1;
-    family.label = roots
-      .map((node) => node.name.replace(/\s+[IV]+$/, ""))
-      .filter((name, index, list) => list.indexOf(name) === index)
-      .join(" / ");
-    nextColumn += width;
+    count = Math.max(count, start + width - 1);
   });
-  return { columns, count: nextColumn - 1, families: orderedFamilies };
+  return { columns, count };
 }
 
 function renderTree() {
@@ -546,26 +568,17 @@ function renderTree() {
   board.className = "vertical-tree";
   const familyLayout = buildFamilyLayout();
   board.style.setProperty("--family-columns", familyLayout.count);
-  board.style.minWidth = `${Math.max(980, familyLayout.count * 127 + 32)}px`;
+  board.style.minWidth = `${familyLayout.count * 104 + 140}px`;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.classList.add("relations");
   svg.setAttribute("aria-hidden", "true");
   board.append(svg);
-  const familyHeaders = document.createElement("div");
-  familyHeaders.className = "family-headers";
-  for (const family of familyLayout.families) {
-    const header = document.createElement("span");
-    header.style.gridColumn = `${family.startColumn} / span ${family.width}`;
-    header.innerHTML = `<b>${family.number}</b><em>${family.label}</em>`;
-    familyHeaders.append(header);
-  }
-  board.append(familyHeaders);
   for (let tier = 1; tier <= 4; tier++) {
     const unlocked = tierUnlocked(tier),
       section = document.createElement("section");
     section.className = `tier-section tier-${tier}${unlocked ? " unlocked" : " locked"}`;
     const need = Math.max(0, threshold(tier) - learnedCount());
-    section.innerHTML = `<header><div><span>Tier ${toRoman(tier)}</span>${unlocked ? "" : `<strong>LOCKED</strong>`}</div><small>${unlocked ? "OPEN" : `Spend ${need} more SP to unlock`} · ${classData().tierCounts[String(tier)]} investments</small></header>`;
+    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong>${unlocked ? "" : `<small class="tier-need">Spend ${need} more SP</small>`}<small class="tier-count">${classData().tierCounts[String(tier)]} investments</small></header>`;
     const nodes = document.createElement("div");
     nodes.className = "tier-nodes";
     classData()
@@ -772,7 +785,7 @@ function renderInspector() {
   if (!inspected) {
     panel.classList.remove("open");
     root.innerHTML =
-      '<div class="inspector-empty"><span>✦</span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
+      '<div class="inspector-empty"><span><i>✦</i></span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
     return;
   }
   if (inspected.type === "core" || inspected.type === "action") {
@@ -832,14 +845,19 @@ function renderAll() {
   renderInspector();
 }
 document.getElementById("resetClass").onclick = resetTree;
-document.getElementById("inspectorClose").onclick = () => {
+function closeInspector() {
   inspected = null;
   renderInspector();
   renderCore();
   document
     .querySelectorAll(".skill-node.inspected")
     .forEach((x) => x.classList.remove("inspected"));
-};
+}
+document.getElementById("inspectorClose").onclick = closeInspector;
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && inspected && !document.getElementById("confirmDialog").open)
+    closeInspector();
+});
 document.getElementById("confirmDialog").addEventListener("click", (e) => {
   if (e.target === e.currentTarget) e.currentTarget.close();
 });
