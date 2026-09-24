@@ -1,145 +1,23 @@
 const DATA = window.SKILL_TREE_DATA;
+const ICONS = window.SKILL_ICON_CATALOG;
+const ASSET_VERSION = "hud-2";
+const asset = (src) => `${src}?v=${ASSET_VERSION}`;
 
-const SKILL_ICON_ORDER = [
-  "fighter/Battlecry","fighter/Bulwark","fighter/Chain_pull","fighter/Chains","fighter/Challenge","fighter/Cleanse","fighter/Crushing_blow","fighter/Defiant_presence","fighter/Piercing_strike","fighter/Pressure","fighter/Provoke","fighter/Rage","fighter/Rally","fighter/Rally_Tank","fighter/Rally_Warrior","fighter/Second_wind","fighter/Severing_strike","fighter/Shoulder_rush","fighter/Shoulder_rush_tank","fighter/Shoulder_rush_warrior","fighter/Tank_stance","fighter/War_leap","fighter/Warrior_stance",
-  "mage/Arcane_burst","mage/Arcane_weaving","mage/Blink","mage/Cleanse","mage/Coil","mage/Combust","mage/Elemental_weaver","mage/Fire_bolt","mage/Frost_lance","mage/Glacial_spike","mage/Iceberg","mage/Laser","mage/Mana_barrier","mage/Mana_storm","mage/Mist","mage/Overcharge","mage/Static_bolt","mage/Tempest","mage/Thunderstrike","mage/Vortex",
-  "mystic/Astral_pull","mystic/Astral_step","mystic/Astral_veil","mystic/Black_hole","mystic/Bright_star","mystic/Cleanse","mystic/Connection_ally","mystic/Connection_enemy","mystic/Cosmic_ray","mystic/Eclipse","mystic/Ether_ally","mystic/Ether_enemy","mystic/Full_moon","mystic/Lullaby","mystic/Moon_aura","mystic/Moon_stance","mystic/Nightmare","mystic/Resurrect","mystic/Serenity","mystic/Spirit_of_the_comet","mystic/Spirit_of_the_orbit","mystic/Spirit_of_the_star","mystic/Sun_Stance","mystic/Sun_aura",
-  "scout/Backstab","scout/Bleed_stance","scout/Blinding_dart","scout/Cleanse","scout/Evasion","scout/Exploit_weakness","scout/Hemorrhage","scout/Long_jump","scout/Poison_sac","scout/Poison_stance","scout/Quickstep","scout/Rapid_attack","scout/Sand_shot","scout/Sickness","scout/Smoke_bomb","scout/Torpor","scout/Vine_field","scout/Volley"
-];
-const SKILL_ICON_INDEX = new Map(SKILL_ICON_ORDER.map((key, index) => [key.toLowerCase(), index]));
-const SKILL_ICON_COLS = 10;
-const SKILL_ICON_ROWS = 9;
-const SKILL_ICON_SPRITE = "assets/skill-icons.webp?v=icons-hq-1";
-const DIRECT_SKILL_ICON_SOURCES = new Map([
-  ["mystic/spirit_of_the_orbit_sun", "assets/spirit-orbit-sun.webp?v=spirits-dual-1"],
-  ["mystic/spirit_of_the_orbit_moon", "assets/spirit-orbit-moon.webp?v=spirits-dual-1"],
-  ["mystic/spirit_of_the_star_sun", "assets/spirit-star-sun.webp?v=spirits-dual-1"],
-  ["mystic/spirit_of_the_star_moon", "assets/spirit-star-moon.webp?v=spirits-dual-1"],
-  ["mystic/spirit_of_the_comet_sun", "assets/spirit-comet-sun.webp?v=spirits-dual-1"],
-  ["mystic/spirit_of_the_comet_moon", "assets/spirit-comet-moon.webp?v=spirits-dual-1"],
-]);
-const CLASS_ICON_SOURCES = {
-  Fighter: "assets/class-fighter.webp?v=class-emblems-1",
-  Mage: "assets/class-mage.webp?v=class-emblems-1",
-  Mystic: "assets/class-mystic.webp?v=class-emblems-1",
-  Scout: "assets/class-scout.webp?v=class-emblems-1",
-};
-const DUAL_FORM_LABELS = {
-  Fighter: {
-    "core-warrior-tank-stance": ["Warrior Stance", "Tank Stance"],
-    "core-rage-bulwark": ["Rage", "Bulwark"],
-    "blade-rush-shield-rush": ["Warrior form", "Tank form"],
-    "battlecry-challenge": ["Warrior form", "Tank form"],
-    "battlerage-chain-challenge": ["Warrior form", "Tank form"],
-    "pressure-provoke": ["Warrior form", "Tank form"],
-    "bloodlust-inspiration": ["Warrior form", "Tank form"],
-    "momentum-mastery": ["Rage", "Bulwark"],
-  },
-  Mystic: {
-    "core-sun-moon-stance": ["Sun Stance", "Moon Stance"],
-    "core-bright-star-full-moon": ["Bright Star", "Full Moon"],
-    "ether": ["Ally", "Enemy"],
-    "tick-tack": ["Ally", "Enemy"],
-    "connection": ["Ally", "Enemy"],
-    "ritual": ["Ally", "Enemy"],
-    "astral-aura": ["Sun Aura", "Moon Aura"],
-    "spirit-of-the-orbit": ["Sun", "Moon"],
-    "spirit-of-the-star": ["Sun", "Moon"],
-    "spirit-of-the-comet": ["Sun", "Moon"],
-  },
-  Scout: {
-    "core-poison-bleed-stance": ["Poison Stance", "Bleed Stance"],
-    "core-poison-sac-hemorrhage": ["Poison Sac", "Hemorrhage"],
-  },
-};
-const SKILL_ICON_OVERRIDES = {
-  Fighter: {
-    "core-warrior-tank-stance": ["fighter/Warrior_stance", "fighter/Tank_stance"],
-    "core-rage-bulwark": ["fighter/Rage", "fighter/Bulwark"],
-    "blade-rush-shield-rush": ["fighter/Shoulder_rush_warrior", "fighter/Shoulder_rush_tank"],
-    "battlecry-challenge": ["fighter/Battlecry", "fighter/Challenge"],
-    "battlerage-chain-challenge": ["fighter/Battlecry", "fighter/Challenge"],
-    "pressure-provoke": ["fighter/Pressure", "fighter/Provoke"],
-    "chain-pull": ["fighter/Chain_pull"],
-    "bloodlust-inspiration": ["fighter/Rally_Warrior", "fighter/Rally_Tank"],
-    "momentum-mastery": ["fighter/Rage", "fighter/Bulwark"]
-  },
-  Mage: {
-    "core-manifest-weave": ["mage/Overcharge"]
-  },
-  Mystic: {
-    "core-sun-moon-stance": ["mystic/Sun_Stance", "mystic/Moon_stance"],
-    "core-bright-star-full-moon": ["mystic/Bright_star", "mystic/Full_moon"],
-    "ether": ["mystic/Ether_ally", "mystic/Ether_enemy"],
-    "tick-tack": ["mystic/Ether_ally", "mystic/Ether_enemy"],
-    "connection": ["mystic/Connection_ally", "mystic/Connection_enemy"],
-    "ritual": ["mystic/Connection_ally", "mystic/Connection_enemy"],
-    "astral-aura": ["mystic/Sun_aura", "mystic/Moon_aura"],
-    "spirit-of-the-orbit": ["mystic/Spirit_of_the_orbit_Sun", "mystic/Spirit_of_the_orbit_Moon"],
-    "spirit-of-the-star": ["mystic/Spirit_of_the_star_Sun", "mystic/Spirit_of_the_star_Moon"],
-    "spirit-of-the-comet": ["mystic/Spirit_of_the_comet_Sun", "mystic/Spirit_of_the_comet_Moon"],
-    "nightmare": ["mystic/Nightmare"],
-    "black-hole": ["mystic/Black_hole"],
-    "white-hole": ["mystic/Black_hole"]
-  },
-  Scout: {
-    "core-poison-bleed-stance": ["scout/Poison_stance", "scout/Bleed_stance"],
-    "core-poison-sac-hemorrhage": ["scout/Poison_sac", "scout/Hemorrhage"]
-  }
-};
-function hasSkillIconKey(key) {
-  const normalized = String(key).toLowerCase();
-  return DIRECT_SKILL_ICON_SOURCES.has(normalized) || SKILL_ICON_INDEX.has(normalized);
-}
-function normalizeSkillIconName(value) {
-  return String(value)
-    .toLowerCase()
-    .replace(/\s+[ivx]+$/i, "")
-    .replace(/\s+—.*$/, "")
-    .replace(/[^a-z0-9]+/g, "");
-}
-const NORMALIZED_SKILL_ICONS = new Map(
-  SKILL_ICON_ORDER.map((key) => {
-    const slash = key.indexOf("/");
-    return [
-      key.slice(0, slash) + "/" + normalizeSkillIconName(key.slice(slash + 1)),
-      key
-    ];
-  }),
-);
-function skillIconKeys(item) {
-  const override = SKILL_ICON_OVERRIDES[currentClass]?.[item.id];
-  if (override) return override.filter(hasSkillIconKey);
-  const classKey = currentClass.toLowerCase();
-  const baseName = String(item.name)
-    .replace(/\s+[IVX]+$/i, "")
-    .replace(/\s+—.*$/, "")
-    .trim();
-  const keys = baseName
-    .split(/\s*\/\s*/)
-    .map((part) => NORMALIZED_SKILL_ICONS.get(classKey + "/" + normalizeSkillIconName(part)))
-    .filter(Boolean);
-  return [...new Set(keys)].slice(0, 2);
+function iconEntry(key) {
+  return key ? ICONS.icons[key] : null;
 }
 function skillIconStyle(key) {
-  const normalizedKey = String(key).toLowerCase();
-  const directSource = DIRECT_SKILL_ICON_SOURCES.get(normalizedKey);
-  if (directSource) {
-    return "background-image:url('" + directSource + "');" +
-      "background-size:cover;background-position:center;";
-  }
-  const index = SKILL_ICON_INDEX.get(normalizedKey);
-  if (index == null || !SKILL_ICON_SPRITE) return "";
-  const col = index % SKILL_ICON_COLS;
-  const row = Math.floor(index / SKILL_ICON_COLS);
-  const x = (col / (SKILL_ICON_COLS - 1)) * 100;
-  const y = (row / (SKILL_ICON_ROWS - 1)) * 100;
-  return "background-image:url('" + SKILL_ICON_SPRITE + "');" +
-    "background-size:" + (SKILL_ICON_COLS * 100) + "% " + (SKILL_ICON_ROWS * 100) + "%;" +
-    "background-position:" + x + "% " + y + "%;";
+  const entry = iconEntry(key);
+  if (!entry) return "";
+  if (entry.src)
+    return `background-image:url('${asset(entry.src)}');background-size:cover;background-position:center;`;
+  const { src, columns, rows } = ICONS.sprite;
+  const x = ((entry.sprite % columns) / (columns - 1)) * 100;
+  const y = (Math.floor(entry.sprite / columns) / (rows - 1)) * 100;
+  return `background-image:url('${asset(src)}');background-size:${columns * 100}% ${rows * 100}%;background-position:${x}% ${y}%;`;
 }
 function skillIconFrame(item, className, mark) {
-  const keys = skillIconKeys(item);
+  const keys = (item.iconKeys || []).filter(iconEntry);
   const art = keys.length
     ? '<span class="skill-art' + (keys.length > 1 ? " multi" : "") + '" aria-hidden="true">' +
       keys.map((key) => '<i style="' + skillIconStyle(key) + '"></i>').join("") +
@@ -154,43 +32,6 @@ function skillIconFrame(item, className, mark) {
     : "";
   return '<span class="' + className + (art ? " has-skill-art" : "") + '">' +
     art + fallback + stateMark + "</span>";
-}
-function dualFormLabels(item) {
-  const explicit = DUAL_FORM_LABELS[currentClass]?.[item.id];
-  if (explicit?.length) return explicit;
-  const parts = String(item.name || "")
-    .replace(/\s+[IVX]+$/i, "")
-    .split(/\s*\/\s*/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-  return parts.length >= 2 ? parts.slice(0, 2) : [];
-}
-function formVariantBadge(label, key) {
-  return '<span class="form-variant"><i class="form-skill-icon" aria-hidden="true" style="' +
-    skillIconStyle(key) + '"></i><b>' + label + "</b></span>";
-}
-function formatDescriptionWithFormIcons(item) {
-  const keys = skillIconKeys(item);
-  let html = formatDescription(item.description, item.keywords);
-  if (keys.length < 2) return html;
-
-  let iconIndex = 0;
-  html = html.replace(/<span class="form-label">/g, () => {
-    if (iconIndex >= keys.length) return '<span class="form-label">';
-    const key = keys[iconIndex++];
-    return '<span class="form-label"><i class="form-skill-icon" aria-hidden="true" style="' +
-      skillIconStyle(key) + '"></i>';
-  });
-
-  if (iconIndex < keys.length) {
-    const labels = dualFormLabels(item);
-    const remaining = keys
-      .slice(iconIndex)
-      .map((key, index) => formVariantBadge(labels[iconIndex + index] || "Variant " + (iconIndex + index + 1), key))
-      .join("");
-    if (remaining) html = '<div class="dual-form-legend">' + remaining + "</div>" + html;
-  }
-  return html;
 }
 
 const STORAGE_KEY = "sanctammo-skill-tree-v2";
@@ -382,10 +223,7 @@ function renderTabs() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `class-tab${name === currentClass ? " active" : ""}`;
-    button.innerHTML =
-      '<img class="class-tab-icon" src="' + CLASS_ICON_SOURCES[name] + '" alt="" aria-hidden="true"><span>' +
-      name +
-      "</span>";
+    button.innerHTML = `<span>${name}</span>`;
     button.setAttribute("aria-pressed", String(name === currentClass));
     button.onclick = () => {
       currentClass = name;
@@ -400,6 +238,11 @@ function renderTabs() {
 function renderBuildStatus() {
   const count = learnedCount();
   document.body.dataset.class = currentClass.toLowerCase();
+  const emblem = asset(ICONS.classEmblems[currentClass]);
+  const mark = document.getElementById("brandClassMark");
+  if (mark.querySelector("img")?.getAttribute("src") !== emblem)
+    mark.innerHTML = `<img src="${emblem}" alt="" />`;
+  mark.title = `${currentClass} class emblem`;
   document.getElementById("currentClass").textContent = currentClass;
   document.getElementById("role").textContent = classData().role;
   document.getElementById("spent").textContent = count;
@@ -482,93 +325,14 @@ function createNode(node) {
   return button;
 }
 
-function buildFamilyLayout() {
-  const nodes = classData().nodes;
-  const parent = new Map(nodes.map((node) => [node.id, node.id]));
-  const find = (id) => {
-    let root = id;
-    while (parent.get(root) !== root) root = parent.get(root);
-    while (parent.get(id) !== id) {
-      const next = parent.get(id);
-      parent.set(id, root);
-      id = next;
-    }
-    return root;
-  };
-  const join = (a, b) => {
-    const rootA = find(a),
-      rootB = find(b);
-    if (rootA !== rootB) parent.set(rootB, rootA);
-  };
-
-  for (const node of nodes)
-    for (const requirement of node.requires || []) join(node.id, requirement);
-
-  const families = new Map();
-  nodes.forEach((node, canonicalIndex) => {
-    const root = find(node.id);
-    if (!families.has(root)) families.set(root, { nodes: [], canonicalIndex });
-    families.get(root).nodes.push(node);
-  });
-
-  const orderedFamilies = [...families.values()].sort((a, b) => {
-    const firstA = Math.min(
-      ...a.nodes.map((node) => node.tier * 100 + node.order),
-    );
-    const firstB = Math.min(
-      ...b.nodes.map((node) => node.tier * 100 + node.order),
-    );
-    return firstA - firstB || a.canonicalIndex - b.canonicalIndex;
-  });
-  // Pack families into shared columns: a family keeps one column (or several,
-  // for side-by-side nodes) through its whole tier span, and families whose
-  // tier spans don't overlap can reuse the same column.
-  const columns = new Map();
-  const occupied = new Map();
-  const isFree = (column, fromTier, toTier) => {
-    for (let tier = fromTier; tier <= toTier; tier++)
-      if (occupied.has(`${column}:${tier}`)) return false;
-    return true;
-  };
-  let count = 0;
-  orderedFamilies.forEach((family) => {
-    const tiers = family.nodes.map((node) => node.tier);
-    const fromTier = Math.min(...tiers),
-      toTier = Math.max(...tiers);
-    const width = Math.max(
-      ...[1, 2, 3, 4].map(
-        (tier) => family.nodes.filter((node) => node.tier === tier).length,
-      ),
-    );
-    let start = 1;
-    while (
-      !Array.from({ length: width }, (_, i) => start + i).every((column) =>
-        isFree(column, fromTier, toTier),
-      )
-    )
-      start++;
-    for (let column = start; column < start + width; column++)
-      for (let tier = fromTier; tier <= toTier; tier++)
-        occupied.set(`${column}:${tier}`, true);
-    for (let tier = 1; tier <= 4; tier++) {
-      family.nodes
-        .filter((node) => node.tier === tier)
-        .sort((a, b) => a.order - b.order)
-        .forEach((node, index) => columns.set(node.id, start + index));
-    }
-    count = Math.max(count, start + width - 1);
-  });
-  return { columns, count };
-}
-
 function renderTree() {
   const root = document.getElementById("tree");
   root.innerHTML = "";
   const board = document.createElement("div");
   board.className = "vertical-tree";
-  const familyLayout = buildFamilyLayout();
-  board.style.setProperty("--family-columns", familyLayout.count);
-  board.style.minWidth = `${familyLayout.count * 104 + 140}px`;
+  const columns = Math.max(...classData().nodes.map((n) => n.column));
+  board.style.setProperty("--family-columns", columns);
+  board.style.minWidth = `${columns * 104 + 140}px`;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.classList.add("relations");
   svg.setAttribute("aria-hidden", "true");
@@ -586,7 +350,7 @@ function renderTree() {
       .sort((a, b) => a.order - b.order)
       .forEach((n) => {
         const node = createNode(n);
-        node.style.gridColumn = familyLayout.columns.get(n.id);
+        node.style.gridColumn = n.column;
         nodes.append(node);
       });
     section.append(nodes);
@@ -728,7 +492,8 @@ function formSelector(item, selected) {
     item.forms.map((form) => '<button type="button" role="tab" aria-selected="' +
       String(form.id === selected.id) + '" class="execution-form-tab' +
       (form.id === selected.id ? ' active' : '') + '" data-form-id="' + form.id + '">' +
-      form.name + '</button>').join("") + '</div>';
+      (iconEntry(form.presentation?.iconKey) ? '<i class="form-skill-icon" aria-hidden="true" style="' + skillIconStyle(form.presentation.iconKey) + '"></i>' : "") +
+      '<span>' + form.name + '</span></button>').join("") + '</div>';
 }
 function bindFormTabs(root) {
   root.querySelectorAll("[data-form-id]").forEach((button) => button.addEventListener("click", () => {
@@ -745,7 +510,7 @@ function formFields(form) {
 function formPresentation(form) {
   const p = form.presentation || {};
   return '<details class="execution-field-details presentation-details"><summary>Presentation keys</summary><dl>' +
-    [['VFX',p.vfxKey],['Animation',p.animationKey],['Audio',p.audioKey]].map(([k,v]) =>
+    [['Icon',p.iconKey],['VFX',p.vfxKey],['Animation',p.animationKey],['Audio',p.audioKey]].map(([k,v]) =>
       '<div><dt>' + k + '</dt><dd>' + (v || 'Unassigned') + '</dd></div>').join("") + '</dl></details>';
 }
 function synthesisPreview(item) {
@@ -835,6 +600,21 @@ function renderAppendix() {
   details.innerHTML = `<summary>Synthesis forms <span>${items.length}</span></summary><div class="appendix-grid">${items.map((x) => `<article><strong>${x.name}</strong>${formatDescription(x.text, x.keywords)}</article>`).join("")}</div>`;
   root.append(details);
 }
+const NODE_STATE_LEGEND = [
+  { label: "Available", note: "Gold edge · 1 SP chip", classes: "state-available", chip: "1 SP" },
+  { label: "Hover", note: "Light gold edge", classes: "state-available is-hover", chip: "1 SP" },
+  { label: "Learned", note: "Bright gold + halo · ✓", classes: "state-learned", chip: "✓" },
+  { label: "Selected", note: "Cyan edge · open in detail", classes: "state-available inspected", chip: "1 SP" },
+  { label: "Locked", note: "Tier or prerequisite missing", classes: "state-locked lock-tier", chip: LOCK_GLYPH },
+  { label: "Excluded", note: "Red edge · other choice learned", classes: "state-locked lock-exclusive", chip: LOCK_GLYPH },
+];
+function renderStateLegend() {
+  const sample = classData().nodes.find((n) => n.tier === 1) || classData().nodes[0];
+  document.getElementById("stateLegend").innerHTML = NODE_STATE_LEGEND.map(
+    (state) =>
+      `<div class="state-sample"><div class="sample-slot skill-node ${state.classes}" aria-hidden="true">${skillIconFrame(sample, "node-icon", state.chip)}</div><strong>${state.label}</strong><small>${state.note}</small></div>`,
+  ).join("");
+}
 function renderAll() {
   renderTabs();
   renderBuildStatus();
@@ -842,6 +622,7 @@ function renderAll() {
   renderUniversalActions();
   renderTree();
   renderAppendix();
+  renderStateLegend();
   renderInspector();
 }
 document.getElementById("resetClass").onclick = resetTree;

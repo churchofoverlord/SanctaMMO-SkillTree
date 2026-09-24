@@ -3,13 +3,14 @@ import vm from "node:vm";
 
 const context = { window: { SKILL_TREE_DATA: {} } };
 vm.createContext(context);
-for (const file of ["fighter", "scout", "mage", "mystic"]) {
+for (const file of ["icons", "fighter", "scout", "mage", "mystic"]) {
   vm.runInContext(fs.readFileSync(`data/${file}.js`, "utf8"), context, {
     filename: `data/${file}.js`,
   });
 }
 
 const DATA = context.window.SKILL_TREE_DATA;
+const ICONS = context.window.SKILL_ICON_CATALOG;
 const expectedClasses = ["Fighter", "Scout", "Mage", "Mystic"];
 const fail = (message) => {
   throw new Error(message);
@@ -372,3 +373,49 @@ for (const id of ["connection","ritual"]) assert(/initial main-target (Bliss|Cur
 assert(!DATA.Mystic.nodes.find((x) => x.id === "serenity").forms.some((x) => /Ally|Enemy/.test(x.name)), "Serenity must remain one compound execution");
 assert(!DATA.Mystic.nodes.find((x) => x.id === "eclipse").forms.some((x) => /Ally|Enemy/.test(x.name)), "Eclipse must remain one hybrid execution");
 console.log(`FORMS PASS: ${allFormIds.size} stable unique FormIds; 80 investments unchanged; contextual cases validated.`);
+
+// Authored layout: every investment owns one (tier, column) cell, and a
+// prerequisite line never passes through another investment.
+for (const [className, data] of Object.entries(DATA)) {
+  const cells = new Map();
+  for (const node of data.nodes) {
+    assert(Number.isInteger(node.column) && node.column >= 1, `${className}/${node.id}: column must be a positive integer`);
+    const cell = `${node.tier}:${node.column}`;
+    assert(!cells.has(cell), `${className}: ${node.id} and ${cells.get(cell)} share Tier ${node.tier} column ${node.column}`);
+    cells.set(cell, node.id);
+  }
+  for (const node of data.nodes)
+    for (const sourceId of node.requires || []) {
+      const source = data.nodes.find((x) => x.id === sourceId);
+      assert(source.tier < node.tier, `${className}: ${sourceId} → ${node.id} must point to a later tier`);
+      for (let tier = source.tier + 1; tier < node.tier; tier++)
+        for (const column of new Set([source.column, node.column])) {
+          const blocker = cells.get(`${tier}:${column}`);
+          assert(!blocker, `${className}: line ${sourceId} → ${node.id} crosses ${blocker}`);
+        }
+    }
+}
+
+// Icon keys: every slot and form references the shared catalog.
+const iconAsset = (entry) => entry.src || ICONS.sprite.src;
+for (const [key, entry] of Object.entries(ICONS.icons)) {
+  assert(/^[a-z]+\/[a-z0-9_]+$/.test(key), `icon key ${key} must be lower_snake class/name`);
+  assert(entry.src ? !("sprite" in entry) : Number.isInteger(entry.sprite) && entry.sprite < ICONS.sprite.columns * ICONS.sprite.rows, `icon ${key}: invalid source`);
+  assert(fs.existsSync(iconAsset(entry)), `icon ${key}: missing asset ${iconAsset(entry)}`);
+}
+for (const [className, src] of Object.entries(ICONS.classEmblems)) assert(fs.existsSync(src), `${className}: missing class emblem ${src}`);
+let iconRefs = 0;
+for (const [className, data] of Object.entries(DATA)) {
+  assert(ICONS.classEmblems[className], `${className}: class emblem missing`);
+  for (const item of [...data.core, ...data.nodes, ...(data.universalActions || [])]) {
+    assert(Array.isArray(item.iconKeys) && item.iconKeys.length <= 2, `${className}/${item.id}: iconKeys must list 0–2 keys`);
+    for (const key of item.iconKeys) assert(ICONS.icons[key], `${className}/${item.id}: unknown icon ${key}`);
+    for (const form of item.forms) {
+      const key = form.presentation.iconKey;
+      assert(key === null || ICONS.icons[key], `${form.id}: unknown icon ${key}`);
+      assert(key !== null || !item.iconKeys.length, `${form.id}: iconKey required when the slot has art`);
+      iconRefs++;
+    }
+  }
+}
+console.log(`LAYOUT & ICONS PASS: authored columns collision-free; ${Object.keys(ICONS.icons).length} catalog icons, ${iconRefs} form icon references validated.`);

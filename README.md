@@ -6,13 +6,13 @@ The implementation follows **SanctaMMO - Skill Tree Simulator Reference**:
 
 - 20 purchasable investments per class and a maximum allocation of 13 Skill Points;
 - vertical tiers with thresholds at 0 / 5 / 9 / 11 learned nodes;
-- tier ordering and left-to-right placement are simulator presentation choices, not gameplay rules;
+- tier rows and authored `column` positions define the layout; placement is presentation, not a gameplay rule;
 - three Granted/Core family slots per class;
 - authored prerequisites and Mage specialization exclusivity;
 - node click opens Skill Detail without spending points;
 - purchases happen through the Learn button, with confirmation for exclusive specializations;
 - one confirmed full-tree reset and no individual refunds;
-- square node icons with explicit Available, Locked, Learned and inspected states;
+- action-bar style square slots with explicit Available, Hover, Learned, Selected, Locked and Excluded states;
 - concrete lock reasons;
 - player-facing descriptions, compact technical fields and explicit semantic keyword tags.
 
@@ -24,6 +24,14 @@ Each investment has a stable `investmentId`, and each Granted slot has a stable 
 
 Roman numerals identify base/deepening progression (`Skill I`, `Skill II`, and so on). Context names follow the identity, such as `Ether II — Ally` and `Shoulder Rush II — Tank`. Legacy names remain metadata only. The detail panel lets you inspect each form's description, fields, keywords and presentation keys while keeping a single tree node and one purchase.
 
-The tree's visual ordering is a simulator presentation choice. It is not a gameplay rule. Basic Attack remains a Universal Action and is not counted as an investment.
+Basic Attack remains a Universal Action and is not counted as an investment.
+
+## Layout and icons
+
+Each investment stores its `tier` and a 1-based `column`. Linked investments share a column across tiers so prerequisite lines stay vertical, and unrelated investments reuse a column when their tier spans do not overlap. `qa.mjs` rejects two investments in one cell and any prerequisite line that passes through another investment.
+
+Every Granted slot, investment and Universal Action lists `iconKeys` (one key, or two for a split Warrior/Tank, Sun/Moon or Ally/Enemy slot), and every form names its own `presentation.iconKey`. Keys such as `fighter/shoulder_rush_warrior` resolve through `data/icons.js`, which maps each key to a cell of the shared sprite sheet or to a standalone asset, and also lists the class emblems.
+
+See [SPEC.md](SPEC.md) for the in-game implementation reference: progression rules, interactions, slot states and visual tokens.
 
 Run `node qa.mjs` from the repository root. The site uses plain HTML, CSS and JavaScript without a build step.
