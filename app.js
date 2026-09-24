@@ -510,33 +510,45 @@ function buildFamilyLayout() {
     );
     return firstA - firstB || a.canonicalIndex - b.canonicalIndex;
   });
+  // Pack families into shared columns: a family keeps one column (or several,
+  // for side-by-side nodes) through its whole tier span, and families whose
+  // tier spans don't overlap can reuse the same column.
   const columns = new Map();
-  let nextColumn = 1;
-  orderedFamilies.forEach((family, familyIndex) => {
+  const occupied = new Map();
+  const isFree = (column, fromTier, toTier) => {
+    for (let tier = fromTier; tier <= toTier; tier++)
+      if (occupied.has(`${column}:${tier}`)) return false;
+    return true;
+  };
+  let count = 0;
+  orderedFamilies.forEach((family) => {
+    const tiers = family.nodes.map((node) => node.tier);
+    const fromTier = Math.min(...tiers),
+      toTier = Math.max(...tiers);
     const width = Math.max(
       ...[1, 2, 3, 4].map(
         (tier) => family.nodes.filter((node) => node.tier === tier).length,
       ),
     );
+    let start = 1;
+    while (
+      !Array.from({ length: width }, (_, i) => start + i).every((column) =>
+        isFree(column, fromTier, toTier),
+      )
+    )
+      start++;
+    for (let column = start; column < start + width; column++)
+      for (let tier = fromTier; tier <= toTier; tier++)
+        occupied.set(`${column}:${tier}`, true);
     for (let tier = 1; tier <= 4; tier++) {
       family.nodes
         .filter((node) => node.tier === tier)
         .sort((a, b) => a.order - b.order)
-        .forEach((node, index) => columns.set(node.id, nextColumn + index));
+        .forEach((node, index) => columns.set(node.id, start + index));
     }
-    const roots = family.nodes
-      .filter((node) => !(node.requires || []).length)
-      .sort((a, b) => a.tier - b.tier || a.order - b.order);
-    family.startColumn = nextColumn;
-    family.width = width;
-    family.number = familyIndex + 1;
-    family.label = roots
-      .map((node) => node.name.replace(/\s+[IV]+$/, ""))
-      .filter((name, index, list) => list.indexOf(name) === index)
-      .join(" / ");
-    nextColumn += width;
+    count = Math.max(count, start + width - 1);
   });
-  return { columns, count: nextColumn - 1, families: orderedFamilies };
+  return { columns, count };
 }
 
 function renderTree() {
@@ -546,20 +558,11 @@ function renderTree() {
   board.className = "vertical-tree";
   const familyLayout = buildFamilyLayout();
   board.style.setProperty("--family-columns", familyLayout.count);
-  board.style.minWidth = `${Math.max(900, familyLayout.count * 96 + 120)}px`;
+  board.style.minWidth = `${familyLayout.count * 104 + 140}px`;
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.classList.add("relations");
   svg.setAttribute("aria-hidden", "true");
   board.append(svg);
-  const familyHeaders = document.createElement("div");
-  familyHeaders.className = "family-headers";
-  for (const family of familyLayout.families) {
-    const header = document.createElement("span");
-    header.style.gridColumn = `${family.startColumn} / span ${family.width}`;
-    header.innerHTML = `<b><i>${family.number}</i></b><em>${family.label}</em>`;
-    familyHeaders.append(header);
-  }
-  board.append(familyHeaders);
   for (let tier = 1; tier <= 4; tier++) {
     const unlocked = tierUnlocked(tier),
       section = document.createElement("section");

@@ -907,60 +907,6 @@ button {
     );
 }
 
-.family-headers {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: repeat(var(--family-columns), minmax(88px, 1fr));
-  gap: 8px;
-  min-height: 70px;
-  padding: 12px 12px 10px calc(var(--tier-rail) + 12px);
-  border-bottom: 1px solid var(--line-gold);
-  background: linear-gradient(180deg, #050c14f5, #050b12e6);
-}
-
-.family-headers span {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 6px;
-  min-width: 0;
-  color: var(--ink-soft);
-  text-align: center;
-}
-
-.family-headers b {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  rotate: 45deg;
-  border: 1px solid rgba(var(--gold-rgb), 0.6);
-  background: #0a121b;
-  color: var(--gold-bright);
-  font:
-    600 12px var(--font-body),
-    serif;
-  font-variant-numeric: lining-nums;
-}
-
-.family-headers b > i {
-  rotate: -45deg;
-  font-style: normal;
-}
-
-.family-headers em {
-  display: -webkit-box;
-  max-width: 100%;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  color: var(--muted);
-  font:
-    italic 12.5px/1.15 var(--font-body),
-    serif;
-}
-
 .relations {
   position: absolute;
   z-index: 2;
@@ -2505,7 +2451,6 @@ footer > span + span::before {
     --tier-rail: 74px;
   }
 
-  .family-headers,
   .tier-nodes {
     grid-template-columns: repeat(var(--family-columns), minmax(80px, 1fr));
     gap: 6px;
