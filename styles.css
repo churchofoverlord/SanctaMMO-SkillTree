@@ -972,6 +972,108 @@ button {
   margin: 17px 0;
 }
 
+.universal-section {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 12px 20px;
+}
+
+.universal-section > header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 74px;
+  padding: 0 18px;
+  border-right: 1px solid #6b5630;
+}
+
+.universal-section h2 {
+  margin: 0;
+  color: var(--gold-bright);
+  font: 500 20px Georgia, serif;
+}
+
+.universal-section header > span {
+  margin-top: 5px;
+  color: #92999e;
+  font: 12px Georgia, serif;
+}
+
+.execution-form-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 10px;
+}
+
+.execution-form-tab {
+  border: 1px solid #40515b;
+  background: #09151d;
+  color: #d6d1c7;
+  padding: 8px 10px;
+  cursor: pointer;
+  font: 600 12px Georgia, serif;
+}
+
+.execution-form-tab:hover,
+.execution-form-tab.active {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+  background: #17212a;
+}
+
+.execution-form-tab:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+.execution-form-title {
+  margin: 8px 0 0;
+  color: var(--gold-bright);
+  font: 600 16px Georgia, serif;
+}
+
+.execution-field-details {
+  margin: 10px 0;
+  border-top: 1px solid #36444c;
+  color: #c8c4ba;
+  font-size: 12px;
+}
+
+.execution-field-details summary {
+  padding: 8px 0;
+  color: var(--gold-bright);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.execution-field-details dl {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 10px;
+}
+
+.execution-field-details dl > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.7fr) 1.3fr;
+  gap: 8px;
+}
+
+.execution-field-details dt {
+  color: #9ca7a7;
+}
+
+.execution-field-details dd {
+  margin: 0;
+  color: #e2ddd2;
+}
+
+.execution-field-details p {
+  line-height: 1.5;
+}
+
 .description-paragraph {
   margin: 0;
   color: #ddd8cd;
@@ -1486,12 +1588,14 @@ footer {
     width: 100%;
   }
 
-  .core-section {
+  .core-section,
+  .universal-section {
     display: block;
     padding: 13px;
   }
 
-  .core-section > header {
+  .core-section > header,
+  .universal-section > header {
     height: auto;
     margin-bottom: 9px;
     padding: 3px 4px 9px;
