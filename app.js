@@ -1,6 +1,6 @@
 const DATA = window.SKILL_TREE_DATA;
 const ICONS = window.SKILL_ICON_CATALOG;
-const ASSET_VERSION = "hud-2";
+const ASSET_VERSION = "hud-8";
 const asset = (src) => `${src}?v=${ASSET_VERSION}`;
 
 function iconEntry(key) {
@@ -274,26 +274,6 @@ function renderCore() {
     root.append(button);
   }
 }
-function renderUniversalActions() {
-  const section = document.getElementById("universalActionSection"),
-    root = document.getElementById("universalActionGrid"),
-    actions = classData().universalActions || [];
-  section.hidden = !actions.length;
-  root.innerHTML = "";
-  for (const action of actions) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "core-card";
-    button.dataset.tip = `action:${action.id}`;
-    button.setAttribute("aria-label", `${action.name}. Universal Action.`);
-    button.style.setProperty("--icon-hue", iconHue(action.name));
-    button.innerHTML = `${skillIconFrame(action, "core-icon")}<span><strong>${action.name}</strong><small>Universal Action</small></span>`;
-    button.onclick = (event) => {
-      if (event.pointerType && event.pointerType !== "mouse") showTooltip(button);
-    };
-    root.append(button);
-  }
-}
 const LOCK_GLYPH =
   '<svg viewBox="0 0 10 12" width="8" height="10"><path d="M2.6 5.2V3.6a2.4 2.4 0 0 1 4.8 0v1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="5.2" width="8" height="6.3" rx="1.2" fill="currentColor"/></svg>';
 function createNode(node) {
@@ -482,15 +462,11 @@ function synthesisPreview(item) {
 }
 function tooltipMarkup(item, kind) {
   const isNode = kind === "node";
-  const status = isNode
-    ? nodeState(item)
-    : kind === "core"
-      ? { code: "granted", label: "Always available" }
-      : { code: "granted", label: "Universal Action" };
+  const status = isNode ? nodeState(item) : { code: "granted", label: "Always available" };
   const excluded = status.lock === "exclusive";
   const stateCode = excluded ? "excluded" : status.code;
   const stateLabel = excluded ? "Excluded" : status.label;
-  const identity = isNode ? `Tier ${toRoman(item.tier)}` : kind === "core" ? "Granted Core" : "Universal Action";
+  const identity = isNode ? `Tier ${toRoman(item.tier)}` : "Granted Core";
   const prereq =
     isNode && (item.requiresNames || []).length
       ? `<p class="prerequisite-note"><b>Requires:</b> ${item.requiresNames.join(" + ")}</p>`
@@ -501,9 +477,7 @@ function tooltipMarkup(item, kind) {
       : "";
   const forms = item.forms || [];
   const foot = !isNode
-    ? kind === "core"
-      ? "Granted · 0 SP"
-      : "Not a Skill Tree investment"
+    ? "Granted · 0 SP"
     : status.code === "available"
       ? "Click to learn · 1 SP"
       : status.code === "learned"
@@ -517,7 +491,7 @@ function tooltipItem(tip) {
   const item =
     kind === "node"
       ? byId(id)
-      : (kind === "core" ? data.core : data.universalActions || []).find((x) => x.id === id);
+      : data.core.find((x) => x.id === id);
   return item ? { kind, item } : null;
 }
 // Beside the slot (right, else left); below or above it on narrow screens.
@@ -576,7 +550,6 @@ function renderAll() {
   renderTabs();
   renderBuildStatus();
   renderCore();
-  renderUniversalActions();
   renderTree();
   renderAppendix();
   refreshTooltip();

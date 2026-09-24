@@ -10,7 +10,7 @@ This simulator is the reference for the in-game Primary Skill Tree. The data in 
 | Skill Points | 13, all available by level 15; every investment costs 1 SP |
 | Tier thresholds | Tier I 0 · Tier II 5 · Tier III 9 · Tier IV 11 learned investments |
 | Granted slots | 3 per class, always available, 0 SP, not investments |
-| Universal Actions | Basic Attack; never costs SP, never counts toward tiers |
+| Universal Actions | Basic Attack; not shown in the Skill Tree, never costs SP, never counts toward tiers |
 | Prerequisites | `requires` — every listed investment must be learned first |
 | Exclusivity | `exclusiveWith` — reciprocal; learning one locks the other until reset |
 | Refunds | None per investment; one confirmed full-tree reset returns all 13 SP |
@@ -29,7 +29,7 @@ An investment's state is resolved in this order; the first match wins and its re
 
 ## 2. Layout
 
-Page order, top to bottom: a header frame with a large emblem of the selected class on the left, spanning the class tabs row and the Granted Core row (label, then the three Granted slots, centred); Universal Actions when the class has any; the tree; and a build bar with the SP progress rail and tier milestones, the `N/13 Skill Points` counter and Reset Skill Tree.
+Page order, top to bottom: a header frame with a large emblem of the selected class on the left, spanning the class tabs row and the Granted Core row (label, then the three Granted slots, centred); the tree; and a build bar with the SP progress rail and tier milestones, the `N/13 Skill Points` counter and Reset Skill Tree.
 
 - Four horizontal **tier rows**, Tier I on top. Each row has a tier rail on the left (label, Roman numeral, Open/Locked chip).
 - Each investment sits in the cell (`tier`, `column`) authored in its data. `column` is 1-based; the tree is as wide as its largest `column` (7–10 per class).
@@ -43,7 +43,7 @@ The Skill Tree is mouse-only: there is no gamepad or keyboard navigation between
 
 | Input | Result |
 |---|---|
-| Hover a slot (tree, Granted or Universal Action) | Shows the skill tooltip beside the slot; leaving the slot hides it |
+| Hover a slot (tree or Granted) | Shows the skill tooltip beside the slot; leaving the slot hides it |
 | Click an Available slot | Learns it (1 SP) |
 | Click a Locked or Excluded slot | Nothing is spent; the lock reason is shown |
 | Click an exclusive investment | Confirmation dialog first: "This choice locks X until you reset the entire Skill Tree." |
@@ -55,7 +55,7 @@ There is no separate Skill Detail panel: everything a player needs is in the too
 
 Placed to the right of the slot (to the left when there is no room), top-aligned with it and kept inside the screen. Uses the standard bronze frame; 380px wide, 760px with forms in two columns when the slot has more than three forms (Arcane Burst). Contents, top to bottom:
 
-1. Slot art (64px), tier or `Granted Core` / `Universal Action`, state chip (Available, Learned, Locked, Excluded, Always available) and name.
+1. Slot art (64px), tier or `Granted Core`, state chip (Available, Learned, Locked, Excluded, Always available) and name.
 2. `Requires:` note when the investment has prerequisites.
 3. One block per form: form icon and name (only when there are several forms), description with coloured keywords, and the Cooldown / Cast Time / Range / Resource Cost / Charges that apply.
 4. Synthesis preview (Mage Weaver), exclusivity warning, Severing stage progress where relevant.
