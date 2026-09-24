@@ -201,6 +201,7 @@ let currentClass = Object.hasOwn(DATA, requestedClass)
   : "Fighter";
 let state = loadState();
 let inspected = null;
+let selectedFormId = null;
 
 function emptyState() {
   return Object.fromEntries(Object.keys(DATA).map((name) => [name, []]));
@@ -385,6 +386,7 @@ function renderTabs() {
     button.onclick = () => {
       currentClass = name;
       inspected = null;
+      selectedFormId = null;
       showNotice("");
       renderAll();
     };
@@ -425,6 +427,23 @@ function renderCore() {
     button.style.setProperty("--icon-hue", iconHue(core.name));
     button.innerHTML = `${skillIconFrame(core, "core-icon")}<span><strong>${core.name}</strong><small>Granted Core</small></span>`;
     button.onclick = () => inspect("core", core.id);
+    root.append(button);
+  }
+}
+function renderUniversalActions() {
+  const section = document.getElementById("universalActionSection"),
+    root = document.getElementById("universalActionGrid"),
+    actions = classData().universalActions || [];
+  section.hidden = !actions.length;
+  root.innerHTML = "";
+  for (const action of actions) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `core-card${inspected?.type === "action" && inspected.id === action.id ? " inspected" : ""}`;
+    button.setAttribute("aria-label", `${action.name}. Universal Action. Open details.`);
+    button.style.setProperty("--icon-hue", iconHue(action.name));
+    button.innerHTML = `${skillIconFrame(action, "core-icon")}<span><strong>${action.name}</strong><small>Universal Action</small></span>`;
+    button.onclick = () => inspect("action", action.id);
     root.append(button);
   }
 }
@@ -640,8 +659,11 @@ function drawRelations(board) {
     }
 }
 function inspect(type, id) {
+  const changed = inspected?.type !== type || inspected?.id !== id;
   inspected = { type, id };
+  if (changed) selectedFormId = null;
   renderCore();
+  renderUniversalActions();
   document
     .querySelectorAll(".skill-node.inspected")
     .forEach((x) => x.classList.remove("inspected"));
@@ -660,7 +682,7 @@ function severingProgress(item) {
   const learned = learnedSet();
   return `<div class="severing-progress" aria-label="Severing progression">${ids.map((id, i) => `${i ? "→" : ""}<span class="${learned.has(id) ? "learned" : ""}${item.id === id ? " current" : ""}"><b>${i + 1}/3</b><small>${learned.has(id) ? "Learned" : "Not learned"}</small></span>`).join("")}</div>`;
 }
-function technicalStrip(item) {
+function technicalStrip(item, form = activeForm(item)) {
   const allowed = [
       "Cooldown",
       "Cast Time",
@@ -668,19 +690,55 @@ function technicalStrip(item) {
       "Resource Cost",
       "Charges",
     ],
-    fields = item.fields || {},
+    fields = form.fields || item.fields || {},
     rows = allowed
       .filter((key) => fields[key] && !/^(none|n\/a)$/i.test(fields[key]))
       .map(
         (key) =>
-          `<div><dt>${key}</dt><dd>${formatTaggedText(fields[key], item.keywords)}</dd></div>`,
+          `<div><dt>${key}</dt><dd>${formatTaggedText(fields[key], form.keywords || item.keywords)}</dd></div>`,
       )
       .join("");
   return rows ? `<dl class="technical-strip">${rows}</dl>` : "";
 }
+function activeForm(item) {
+  const forms = Array.isArray(item.forms) ? item.forms : [];
+  return forms.find((form) => form.id === selectedFormId) || forms[0] || {
+    id: "legacy-form", name: item.name, description: item.description,
+    fields: item.fields || {}, keywords: item.keywords || [], effects: [],
+    technicalNotes: (item.fields || {})["Technical Notes"] || null,
+    presentation: { vfxKey: null, animationKey: null, audioKey: null },
+  };
+}
+function formSelector(item, selected) {
+  if ((item.forms || []).length < 2) return "";
+  return '<div class="execution-form-selector" role="tablist" aria-label="Execution forms">' +
+    item.forms.map((form) => '<button type="button" role="tab" aria-selected="' +
+      String(form.id === selected.id) + '" class="execution-form-tab' +
+      (form.id === selected.id ? ' active' : '') + '" data-form-id="' + form.id + '">' +
+      form.name + '</button>').join("") + '</div>';
+}
+function bindFormTabs(root) {
+  root.querySelectorAll("[data-form-id]").forEach((button) => button.addEventListener("click", () => {
+    selectedFormId = button.dataset.formId;
+    renderInspector();
+  }));
+}
+function formFields(form) {
+  const fields = form.fields || {};
+  const rows = Object.entries(fields).map(([key, value]) =>
+    '<div><dt>' + key + '</dt><dd>' + formatTaggedText(String(value), form.keywords || []) + '</dd></div>').join("");
+  return rows ? '<details class="execution-field-details"><summary>Execution fields</summary><dl>' + rows + '</dl></details>' : "";
+}
+function formPresentation(form) {
+  const p = form.presentation || {};
+  return '<details class="execution-field-details presentation-details"><summary>Presentation keys</summary><dl>' +
+    [['VFX',p.vfxKey],['Animation',p.animationKey],['Audio',p.audioKey]].map(([k,v]) =>
+      '<div><dt>' + k + '</dt><dd>' + (v || 'Unassigned') + '</dd></div>').join("") + '</dl></details>';
+}
 function synthesisPreview(item) {
   if (currentClass !== "Mage" || !item.id?.startsWith("elemental")) return "";
   const forms = classData().appendix || [];
+  if (!forms.length) return "";
   const visible = item.id === "elemental-weaver" ? forms.slice(0, 3) : forms;
   return `<div class="synthesis-preview"><strong>Synthesis</strong>${visible
     .map((form) => {
@@ -692,6 +750,7 @@ function synthesisPreview(item) {
     .join("")}</div>`;
 }
 function detailMarkup(item, isCore, status) {
+  const form = activeForm(item);
   const prereq =
     !isCore && (item.requiresNames || []).length
       ? `<p class="prerequisite-note"><b>Requires:</b> ${item.requiresNames.join(" + ")}</p>`
@@ -700,7 +759,11 @@ function detailMarkup(item, isCore, status) {
     !isCore && (item.exclusiveNames || []).length
       ? `<p class="exclusive-note"><b>!</b><span>Learning this prevents <strong>${item.exclusiveNames.join(", ")}</strong> until you reset the whole tree.</span></p>`
       : "";
-  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="skill-description">${formatDescriptionWithFormIcons(item)}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item)}`;
+  const selection = formSelector(item, form);
+  const title = (item.forms || []).length > 1 ? `<h3 class="execution-form-title">${form.name}</h3>` : "";
+  const notes = form.technicalNotes ? `<details class="execution-field-details"><summary>Technical Notes</summary><p>${form.technicalNotes}</p></details>` : "";
+  const identityLabel = status.code === "action" ? "Universal Action" : isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`;
+  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${identityLabel}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}${selection}${title}<div class="skill-description">${formatDescription(form.description, form.keywords || [])}</div>${formFields(form)}${notes}${formPresentation(form)}${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item, form)}`;
 }
 function renderInspector() {
   hideKeywordTooltip();
@@ -712,16 +775,19 @@ function renderInspector() {
       '<div class="inspector-empty"><span>✦</span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
     return;
   }
-  if (inspected.type === "core") {
-    const item = classData().core.find((x) => x.id === inspected.id);
+  if (inspected.type === "core" || inspected.type === "action") {
+    const item = inspected.type === "core"
+      ? classData().core.find((x) => x.id === inspected.id)
+      : (classData().universalActions || []).find((x) => x.id === inspected.id);
     if (!item) {
       inspected = null;
       return renderInspector();
     }
     root.innerHTML = detailMarkup(item, true, {
-      code: "granted",
-      label: "Always available",
+      code: inspected.type === "action" ? "action" : "granted",
+      label: inspected.type === "action" ? "Not purchased" : "Always available",
     });
+    bindFormTabs(root);
     return;
   }
   const item = byId(inspected.id);
@@ -744,6 +810,7 @@ function renderInspector() {
   document
     .getElementById("nodeAction")
     ?.addEventListener("click", () => learnNode(item));
+  bindFormTabs(root);
 }
 function renderAppendix() {
   const root = document.getElementById("appendixHolder"),
@@ -759,6 +826,7 @@ function renderAll() {
   renderTabs();
   renderBuildStatus();
   renderCore();
+  renderUniversalActions();
   renderTree();
   renderAppendix();
   renderInspector();
