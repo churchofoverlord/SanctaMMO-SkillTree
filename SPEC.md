@@ -29,7 +29,7 @@ An investment's state is resolved in this order; the first match wins and its re
 
 ## 2. Layout
 
-Page order, top to bottom: a header frame with the class tabs (selected class emblem on their left) above the three Granted slots; Universal Actions when the class has any; the tree; and a build bar with the SP progress rail and tier milestones, the `N/13 Skill Points` counter and Reset Skill Tree.
+Page order, top to bottom: a header frame with a large emblem of the selected class on the left, spanning the class tabs row and the Granted Core row (label, then the three Granted slots, centred); Universal Actions when the class has any; the tree; and a build bar with the SP progress rail and tier milestones, the `N/13 Skill Points` counter and Reset Skill Tree.
 
 - Four horizontal **tier rows**, Tier I on top. Each row has a tier rail on the left (label, Roman numeral, Open/Locked chip).
 - Each investment sits in the cell (`tier`, `column`) authored in its data. `column` is 1-based; the tree is as wide as its largest `column` (7–10 per class).

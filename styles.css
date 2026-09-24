@@ -199,7 +199,32 @@ button {
 
 .topbar {
   display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
   padding: 0;
+}
+
+/* Large emblem of the selected class, spanning both header rows. */
+.header-emblem {
+  position: relative;
+  display: grid;
+  grid-row: 1 / span 2;
+  place-items: center;
+  padding: 12px;
+  border-right: 1px solid var(--line);
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(var(--accent-rgb), 0.22),
+    transparent 68%
+  );
+}
+
+.header-emblem > img {
+  display: block;
+  width: 156px;
+  height: 156px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(var(--accent-rgb), 0.5))
+    drop-shadow(0 8px 12px #000c);
 }
 
 .visually-hidden {
@@ -232,32 +257,6 @@ button {
   translate: -50%;
   background: var(--stud) center / contain no-repeat;
   content: "";
-}
-
-.brand-mark {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  margin: 0 4px;
-  transform: rotate(45deg);
-  border: 2px solid var(--gold);
-  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.3), #0a1116 70%);
-  color: var(--gold-bright);
-  font: 800 18px var(--font-ui);
-  box-shadow:
-    0 0 0 2px #05090c,
-    0 0 16px rgba(var(--accent-rgb), 0.3);
-}
-
-.brand-mark > img {
-  display: block;
-  width: 36px;
-  height: 36px;
-  transform: rotate(-45deg);
-  object-fit: contain;
-  filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.55));
 }
 
 .class-tabs {
@@ -508,6 +507,28 @@ button {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+/* Granted Core row inside the header: label then slots, centred as a group. */
+.topbar > .core-section {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+  padding: 18px 28px;
+}
+
+.topbar > .core-section > header {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 56px;
+  padding: 0 32px 0 0;
+}
+
+.topbar .core-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 44px;
 }
 
 .core-card {
@@ -1585,14 +1606,35 @@ button {
     padding: 14px 14px 14px 16px;
   }
 
-  .brand-mark {
-    width: 32px;
-    height: 32px;
+  .topbar {
+    grid-template-columns: 64px minmax(0, 1fr);
   }
 
-  .brand-mark > img {
-    width: 28px;
-    height: 28px;
+  .header-emblem {
+    grid-row: 1;
+    padding: 6px 0 6px 8px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .header-emblem > img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .topbar > .core-section {
+    display: block;
+    grid-column: 1 / -1;
+    padding: 14px;
+  }
+
+  .topbar > .core-section > header {
+    padding: 4px 4px 12px;
+  }
+
+  .topbar .core-strip {
+    display: grid;
+    gap: 4px;
   }
 
   .class-tabs {
