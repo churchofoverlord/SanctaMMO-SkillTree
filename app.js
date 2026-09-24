@@ -150,7 +150,7 @@ function skillIconFrame(item, className, mark) {
     : '<i class="fallback-sigil' + (className === "node-icon" ? " icon-sigil" : "") + '" aria-hidden="true"></i><b>' +
       initials(item.name) + "</b>";
   const stateMark = mark
-    ? '<i class="state-mark" aria-hidden="true">' + mark + "</i>"
+    ? '<i class="slot-chip" aria-hidden="true">' + mark + "</i>"
     : "";
   return '<span class="' + className + (art ? " has-skill-art" : "") + '">' +
     art + fallback + stateMark + "</span>";
@@ -282,6 +282,7 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "tier",
       reason: `Locked — Spend ${more} more SP to unlock Tier ${toRoman(node.tier)}`,
     };
   }
@@ -290,6 +291,7 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "requires",
       reason: `Locked — Requires ${missing.map((id) => byId(id)?.name || id).join(" + ")}`,
     };
   const excluded = (node.exclusiveWith || []).filter((id) => set.has(id));
@@ -297,12 +299,14 @@ function nodeState(node, set = learnedSet()) {
     return {
       code: "locked",
       label: "Locked",
+      lock: "exclusive",
       reason: `Locked — Cannot be learned with ${excluded.map((id) => byId(id)?.name || id).join(", ")}`,
     };
   if (learnedCount() >= maxSp())
     return {
       code: "locked",
       label: "Locked",
+      lock: "cap",
       reason: `Locked — Maximum ${maxSp()} Skill Points reached`,
     };
   return {
@@ -447,11 +451,13 @@ function renderUniversalActions() {
     root.append(button);
   }
 }
+const LOCK_GLYPH =
+  '<svg viewBox="0 0 10 12" width="8" height="10"><path d="M2.6 5.2V3.6a2.4 2.4 0 0 1 4.8 0v1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="5.2" width="8" height="6.3" rx="1.2" fill="currentColor"/></svg>';
 function createNode(node) {
   const status = nodeState(node),
     button = document.createElement("button");
   button.type = "button";
-  button.className = `skill-node state-${status.code}${inspected?.type === "node" && inspected.id === node.id ? " inspected" : ""}`;
+  button.className = `skill-node state-${status.code}${status.lock ? ` lock-${status.lock}` : ""}${inspected?.type === "node" && inspected.id === node.id ? " inspected" : ""}`;
   button.dataset.id = node.id;
   button.dataset.tier = node.tier;
   button.dataset.order = node.order;
@@ -462,7 +468,11 @@ function createNode(node) {
     `${node.name}. ${status.reason}. Open details.`,
   );
   const mark =
-    status.code === "learned" ? "✓" : status.code === "locked" ? "🔒" : "";
+    status.code === "learned"
+      ? "✓"
+      : status.code === "locked"
+        ? LOCK_GLYPH
+        : "1 SP";
   button.innerHTML = `${skillIconFrame(node, "node-icon", mark)}<strong>${node.name}</strong>`;
   button.onclick = () => inspect("node", node.id);
   button.ondblclick = (event) => {
