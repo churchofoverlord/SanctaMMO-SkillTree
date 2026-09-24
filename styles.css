@@ -467,8 +467,7 @@ button {
   min-width: 0;
 }
 
-.core-section,
-.universal-section {
+.core-section {
   display: grid;
   grid-template-columns: 190px 1fr;
   gap: 20px;
@@ -476,8 +475,7 @@ button {
   padding: 14px 22px;
 }
 
-.core-section > header,
-.universal-section > header {
+.core-section > header {
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -489,16 +487,14 @@ button {
   border-right: 1px solid var(--line);
 }
 
-.core-section h2,
-.universal-section h2 {
+.core-section h2 {
   margin: 0;
   color: var(--ink);
   font:
     700 17px/1.15 var(--font-ui);
 }
 
-.core-section header > span,
-.universal-section header > span {
+.core-section header > span {
   color: var(--muted);
   font: 400 12.5px var(--font-ui);
 }
@@ -1687,15 +1683,13 @@ button {
     gap: 14px;
   }
 
-  .core-section,
-  .universal-section {
+  .core-section {
     display: block;
     padding: 14px;
   }
 
 
-  .core-section > header,
-  .universal-section > header {
+  .core-section > header {
     height: auto;
     min-height: 0;
     margin-bottom: 10px;
