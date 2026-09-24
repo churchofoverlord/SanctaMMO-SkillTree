@@ -805,13 +805,6 @@ button {
   color: var(--muted);
 }
 
-.tier-need {
-  margin-top: 5px;
-  color: var(--ink-soft);
-  font:
-    500 10.5px/1.2 var(--font-ui);
-}
-
 .tier-nodes {
   position: relative;
   display: grid;
