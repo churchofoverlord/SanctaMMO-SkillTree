@@ -156,7 +156,7 @@ const expectedNames = {
     "Chains II",
     "Piercing Strike II",
     "Defiant Presence",
-    "Battlecry / Challenge II",
+    "Battlecry II / Challenge II",
     "Momentum Mastery",
     "Rally II",
   ],
@@ -178,7 +178,7 @@ const expectedNames = {
     "Smoke Bomb I",
     "Vine Field II",
     "Volley II",
-    "Poison Sac / Hemorrhage II",
+    "Poison Sac II / Hemorrhage II",
     "Exploit Weakness III",
     "Smoke Bomb II",
   ],
@@ -331,7 +331,7 @@ for (const form of DATA.Scout.universalActions[0].forms) {
   assert(form.presentation && Object.hasOwn(form.presentation, "vfxKey") && Object.hasOwn(form.presentation, "animationKey") && Object.hasOwn(form.presentation, "audioKey"), `${form.id}: action presentation keys missing`);
   for (const field of ["Activation Type", "Target Type", "Target Relation", "Travel Type", "Movement Type", "Effect Type", "Resource Cost"]) assert(Object.hasOwn(form.fields, field), `${form.id}: missing execution field ${field}`);
 }
-assert(DATA.Scout.nodes.filter((x) => x.name === "Poison Sac / Hemorrhage II").length === 1, "Sickness deepening must retain one investment identity");
+assert(DATA.Scout.nodes.filter((x) => x.name === "Poison Sac II / Hemorrhage II").length === 1, "Sickness deepening must retain one investment identity");
 assert(DATA.Scout.nodes.find((x) => x.id === "sickness").legacyName === "Sickness", "Sickness must remain legacy metadata only");
 const backstab = DATA.Scout.nodes.find((x) => x.id === "ambush");
 assert(backstab.name === "Backstab II" && !backstab.keywords.includes("Interrupt") && backstab.keywords.includes("Stun"), "Backstab II keyword reconciliation failed");
