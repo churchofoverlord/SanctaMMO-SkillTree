@@ -41,8 +41,8 @@ let currentClass = Object.hasOwn(DATA, requestedClass)
   ? requestedClass
   : "Fighter";
 let state = loadState();
-let inspected = null;
-let selectedFormId = null;
+let tooltipTarget = null;
+let justLearned = null;
 
 function emptyState() {
   return Object.fromEntries(Object.keys(DATA).map((name) => [name, []]));
@@ -183,9 +183,10 @@ function commitLearn(node) {
   }
   state[currentClass] = [...state[currentClass], node.id];
   saveState();
-  inspected = { type: "node", id: node.id };
+  justLearned = node.id;
   showNotice(`Learned ${node.name}.`, "good");
   renderAll();
+  justLearned = null;
 }
 function learnNode(node) {
   if ((node.exclusiveWith || []).length) {
@@ -209,7 +210,6 @@ function resetTree() {
     onConfirm: () => {
       state[currentClass] = [];
       saveState();
-      inspected = null;
       showNotice(`${currentClass} Skill Tree reset.`, "good");
       renderAll();
     },
@@ -227,8 +227,6 @@ function renderTabs() {
     button.setAttribute("aria-pressed", String(name === currentClass));
     button.onclick = () => {
       currentClass = name;
-      inspected = null;
-      selectedFormId = null;
       showNotice("");
       renderAll();
     };
@@ -266,14 +264,14 @@ function renderCore() {
   for (const core of classData().core) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `core-card${inspected?.type === "core" && inspected.id === core.id ? " inspected" : ""}`;
-    button.setAttribute(
-      "aria-label",
-      `${core.name}. Granted Core. Open details.`,
-    );
+    button.className = "core-card";
+    button.dataset.tip = `core:${core.id}`;
+    button.setAttribute("aria-label", `${core.name}. Granted Core.`);
     button.style.setProperty("--icon-hue", iconHue(core.name));
     button.innerHTML = `${skillIconFrame(core, "core-icon")}<span><strong>${core.name}</strong><small>Granted Core</small></span>`;
-    button.onclick = () => inspect("core", core.id);
+    button.onclick = (event) => {
+      if (event.pointerType && event.pointerType !== "mouse") showTooltip(button);
+    };
     root.append(button);
   }
 }
@@ -286,11 +284,14 @@ function renderUniversalActions() {
   for (const action of actions) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `core-card${inspected?.type === "action" && inspected.id === action.id ? " inspected" : ""}`;
-    button.setAttribute("aria-label", `${action.name}. Universal Action. Open details.`);
+    button.className = "core-card";
+    button.dataset.tip = `action:${action.id}`;
+    button.setAttribute("aria-label", `${action.name}. Universal Action.`);
     button.style.setProperty("--icon-hue", iconHue(action.name));
     button.innerHTML = `${skillIconFrame(action, "core-icon")}<span><strong>${action.name}</strong><small>Universal Action</small></span>`;
-    button.onclick = () => inspect("action", action.id);
+    button.onclick = (event) => {
+      if (event.pointerType && event.pointerType !== "mouse") showTooltip(button);
+    };
     root.append(button);
   }
 }
@@ -300,16 +301,13 @@ function createNode(node) {
   const status = nodeState(node),
     button = document.createElement("button");
   button.type = "button";
-  button.className = `skill-node state-${status.code}${status.lock ? ` lock-${status.lock}` : ""}${inspected?.type === "node" && inspected.id === node.id ? " inspected" : ""}`;
+  button.className = `skill-node state-${status.code}${status.lock ? ` lock-${status.lock}` : ""}${justLearned === node.id ? " just-learned" : ""}`;
   button.dataset.id = node.id;
+  button.dataset.tip = `node:${node.id}`;
   button.dataset.tier = node.tier;
   button.dataset.order = node.order;
   button.style.setProperty("--icon-hue", iconHue(node.name));
-  button.title = status.reason;
-  button.setAttribute(
-    "aria-label",
-    `${node.name}. ${status.reason}. Open details.`,
-  );
+  button.setAttribute("aria-label", `${node.name}. ${status.reason}.`);
   const mark =
     status.code === "learned"
       ? "✓"
@@ -317,10 +315,15 @@ function createNode(node) {
         ? LOCK_GLYPH
         : "1 SP";
   button.innerHTML = `${skillIconFrame(node, "node-icon", mark)}<strong>${node.name}</strong>`;
-  button.onclick = () => inspect("node", node.id);
-  button.ondblclick = (event) => {
-    event.preventDefault();
-    if (nodeState(node).code === "available") learnNode(node);
+  button.onclick = (event) => {
+    // On touch there is no hover: the first tap shows the tooltip.
+    if (event.pointerType && event.pointerType !== "mouse" && tooltipTarget !== button) {
+      showTooltip(button);
+      return;
+    }
+    const current = nodeState(node);
+    if (current.code === "available") learnNode(node);
+    else if (current.code === "locked") showNotice(current.reason, "error");
   };
   return button;
 }
@@ -435,20 +438,6 @@ function drawRelations(board) {
       svg.append(label);
     }
 }
-function inspect(type, id) {
-  const changed = inspected?.type !== type || inspected?.id !== id;
-  inspected = { type, id };
-  if (changed) selectedFormId = null;
-  renderCore();
-  renderUniversalActions();
-  document
-    .querySelectorAll(".skill-node.inspected")
-    .forEach((x) => x.classList.remove("inspected"));
-  if (type === "node")
-    document.querySelector(`[data-id="${id}"]`)?.classList.add("inspected");
-  renderInspector();
-  document.getElementById("inspector").classList.add("open");
-}
 function severingProgress(item) {
   const ids = [
     "severing-strike",
@@ -459,59 +448,25 @@ function severingProgress(item) {
   const learned = learnedSet();
   return `<div class="severing-progress" aria-label="Severing progression">${ids.map((id, i) => `${i ? "→" : ""}<span class="${learned.has(id) ? "learned" : ""}${item.id === id ? " current" : ""}"><b>${i + 1}/3</b><small>${learned.has(id) ? "Learned" : "Not learned"}</small></span>`).join("")}</div>`;
 }
-function technicalStrip(item, form = activeForm(item)) {
-  const allowed = [
-      "Cooldown",
-      "Cast Time",
-      "Range",
-      "Resource Cost",
-      "Charges",
-    ],
-    fields = form.fields || item.fields || {},
-    rows = allowed
-      .filter((key) => fields[key] && !/^(none|n\/a)$/i.test(fields[key]))
-      .map(
-        (key) =>
-          `<div><dt>${key}</dt><dd>${formatTaggedText(fields[key], form.keywords || item.keywords)}</dd></div>`,
-      )
-      .join("");
-  return rows ? `<dl class="technical-strip">${rows}</dl>` : "";
-}
-function activeForm(item) {
-  const forms = Array.isArray(item.forms) ? item.forms : [];
-  return forms.find((form) => form.id === selectedFormId) || forms[0] || {
-    id: "legacy-form", name: item.name, description: item.description,
-    fields: item.fields || {}, keywords: item.keywords || [], effects: [],
-    technicalNotes: (item.fields || {})["Technical Notes"] || null,
-    presentation: { vfxKey: null, animationKey: null, audioKey: null },
-  };
-}
-function formSelector(item, selected) {
-  if ((item.forms || []).length < 2) return "";
-  return '<div class="execution-form-selector" role="tablist" aria-label="Execution forms">' +
-    item.forms.map((form) => '<button type="button" role="tab" aria-selected="' +
-      String(form.id === selected.id) + '" class="execution-form-tab' +
-      (form.id === selected.id ? ' active' : '') + '" data-form-id="' + form.id + '">' +
-      (iconEntry(form.presentation?.iconKey) ? '<i class="form-skill-icon" aria-hidden="true" style="' + skillIconStyle(form.presentation.iconKey) + '"></i>' : "") +
-      '<span>' + form.name + '</span></button>').join("") + '</div>';
-}
-function bindFormTabs(root) {
-  root.querySelectorAll("[data-form-id]").forEach((button) => button.addEventListener("click", () => {
-    selectedFormId = button.dataset.formId;
-    renderInspector();
-  }));
-}
-function formFields(form) {
+const TOOLTIP_STATS = ["Cooldown", "Cast Time", "Range", "Resource Cost", "Charges"];
+function formStats(form) {
   const fields = form.fields || {};
-  const rows = Object.entries(fields).map(([key, value]) =>
-    '<div><dt>' + key + '</dt><dd>' + formatTaggedText(String(value), form.keywords || []) + '</dd></div>').join("");
-  return rows ? '<details class="execution-field-details"><summary>Execution fields</summary><dl>' + rows + '</dl></details>' : "";
+  const rows = TOOLTIP_STATS.filter(
+    (key) => fields[key] && !/^(none|n\/a)$/i.test(fields[key]),
+  )
+    .map(
+      (key) =>
+        `<div><dt>${key}</dt><dd>${formatTaggedText(fields[key], form.keywords || [])}</dd></div>`,
+    )
+    .join("");
+  return rows ? `<dl class="tt-stats">${rows}</dl>` : "";
 }
-function formPresentation(form) {
-  const p = form.presentation || {};
-  return '<details class="execution-field-details presentation-details"><summary>Presentation keys</summary><dl>' +
-    [['Icon',p.iconKey],['VFX',p.vfxKey],['Animation',p.animationKey],['Audio',p.audioKey]].map(([k,v]) =>
-      '<div><dt>' + k + '</dt><dd>' + (v || 'Unassigned') + '</dd></div>').join("") + '</dl></details>';
+function formMarkup(form, showName) {
+  const icon = iconEntry(form.presentation?.iconKey)
+    ? `<i class="form-skill-icon" aria-hidden="true" style="${skillIconStyle(form.presentation.iconKey)}"></i>`
+    : "";
+  const name = showName ? `<div class="tt-form-name">${icon}<span>${form.name}</span></div>` : "";
+  return `<section class="tt-form">${name}<div class="skill-description">${formatDescription(form.description, form.keywords || [])}</div>${formStats(form)}</section>`;
 }
 function synthesisPreview(item) {
   if (currentClass !== "Mage" || !item.id?.startsWith("elemental")) return "";
@@ -527,68 +482,87 @@ function synthesisPreview(item) {
     })
     .join("")}</div>`;
 }
-function detailMarkup(item, isCore, status) {
-  const form = activeForm(item);
+function tooltipMarkup(item, kind) {
+  const isNode = kind === "node";
+  const status = isNode
+    ? nodeState(item)
+    : kind === "core"
+      ? { code: "granted", label: "Always available" }
+      : { code: "granted", label: "Universal Action" };
+  const excluded = status.lock === "exclusive";
+  const stateCode = excluded ? "excluded" : status.code;
+  const stateLabel = excluded ? "Excluded" : status.label;
+  const identity = isNode ? `Tier ${toRoman(item.tier)}` : kind === "core" ? "Granted Core" : "Universal Action";
   const prereq =
-    !isCore && (item.requiresNames || []).length
+    isNode && (item.requiresNames || []).length
       ? `<p class="prerequisite-note"><b>Requires:</b> ${item.requiresNames.join(" + ")}</p>`
       : "";
   const exclusive =
-    !isCore && (item.exclusiveNames || []).length
+    isNode && (item.exclusiveNames || []).length
       ? `<p class="exclusive-note"><b>!</b><span>Learning this prevents <strong>${item.exclusiveNames.join(", ")}</strong> until you reset the whole tree.</span></p>`
       : "";
-  const selection = formSelector(item, form);
-  const title = (item.forms || []).length > 1 ? `<h3 class="execution-form-title">${form.name}</h3>` : "";
-  const notes = form.technicalNotes ? `<details class="execution-field-details"><summary>Technical Notes</summary><p>${form.technicalNotes}</p></details>` : "";
-  const identityLabel = status.code === "action" ? "Universal Action" : isCore ? "Granted Core" : `Tier ${toRoman(item.tier)}`;
-  return `<div class="detail-hero" style="--icon-hue:${iconHue(item.name)}">${skillIconFrame(item, "detail-icon")}<div><div class="detail-meta"><span>${identityLabel}</span><span class="status-${status.code}">${status.label}</span></div><h2>${item.name}</h2></div></div>${prereq}${selection}${title}<div class="skill-description">${formatDescription(form.description, form.keywords || [])}</div>${formFields(form)}${notes}${formPresentation(form)}${synthesisPreview(item)}${exclusive}${severingProgress(item)}${technicalStrip(item, form)}`;
+  const forms = item.forms || [];
+  const foot = !isNode
+    ? kind === "core"
+      ? "Granted · 0 SP"
+      : "Not a Skill Tree investment"
+    : status.code === "available"
+      ? "Click to learn · 1 SP"
+      : status.code === "learned"
+        ? "Learned"
+        : status.reason.replace(/^Locked — /, "");
+  return `<div class="tt-head">${skillIconFrame(item, "detail-icon")}<div><div class="tt-meta"><span>${identity}</span><span class="status-${stateCode}">${stateLabel}</span></div><h2>${item.name}</h2></div></div>${prereq}<div class="tt-forms">${forms.map((form) => formMarkup(form, forms.length > 1)).join("")}</div>${synthesisPreview(item)}${exclusive}${severingProgress(item)}<div class="tt-foot ${stateCode}">${foot}</div>`;
 }
-function renderInspector() {
+function tooltipItem(tip) {
+  const [kind, id] = tip.split(/:(.*)/s);
+  const data = classData();
+  const item =
+    kind === "node"
+      ? byId(id)
+      : (kind === "core" ? data.core : data.universalActions || []).find((x) => x.id === id);
+  return item ? { kind, item } : null;
+}
+// Beside the slot (right, else left); below or above it on narrow screens.
+function positionTooltip(tooltip, anchor) {
+  const rect = (anchor.querySelector(".node-icon, .core-icon") || anchor).getBoundingClientRect();
+  const gap = 14,
+    margin = 8,
+    width = tooltip.offsetWidth,
+    height = tooltip.offsetHeight;
+  let left, top;
+  if (rect.right + gap + width <= innerWidth - margin) {
+    left = rect.right + gap;
+    top = rect.top;
+  } else if (rect.left - gap - width >= margin) {
+    left = rect.left - gap - width;
+    top = rect.top;
+  } else {
+    left = rect.left + rect.width / 2 - width / 2;
+    top = rect.bottom + gap + 8;
+    if (top + height > innerHeight - margin) top = rect.top - gap - height;
+  }
+  left = Math.max(margin, Math.min(left, innerWidth - width - margin));
+  top = Math.max(margin, Math.min(top, innerHeight - height - margin));
+  tooltip.style.left = `${Math.round(left)}px`;
+  tooltip.style.top = `${Math.round(top)}px`;
+}
+function showTooltip(anchor) {
+  const found = tooltipItem(anchor.dataset.tip);
+  if (!found) return;
+  const tooltip = document.getElementById("skillTooltip");
   hideKeywordTooltip();
-  const root = document.getElementById("inspectorContent"),
-    panel = document.getElementById("inspector");
-  if (!inspected) {
-    panel.classList.remove("open");
-    root.innerHTML =
-      '<div class="inspector-empty"><span><i>✦</i></span><h2>Inspect a skill</h2><p>Select a node to view its description, requirements and current state.</p></div>';
-    return;
-  }
-  if (inspected.type === "core" || inspected.type === "action") {
-    const item = inspected.type === "core"
-      ? classData().core.find((x) => x.id === inspected.id)
-      : (classData().universalActions || []).find((x) => x.id === inspected.id);
-    if (!item) {
-      inspected = null;
-      return renderInspector();
-    }
-    root.innerHTML = detailMarkup(item, true, {
-      code: inspected.type === "action" ? "action" : "granted",
-      label: inspected.type === "action" ? "Not purchased" : "Always available",
-    });
-    bindFormTabs(root);
-    return;
-  }
-  const item = byId(inspected.id);
-  if (!item) {
-    inspected = null;
-    return renderInspector();
-  }
-  const status = nodeState(item);
-  const reason =
-    status.code === "locked"
-      ? `<p class="action-reason">${status.reason}</p>`
-      : "";
-  const button =
-    status.code === "available"
-      ? '<button class="primary-action" id="nodeAction" type="button">Learn</button>'
-      : `<button class="primary-action" type="button" disabled>${status.label}</button>`;
-  root.innerHTML =
-    detailMarkup(item, false, status) +
-    `<div class="inspector-actions">${reason}${button}</div>`;
-  document
-    .getElementById("nodeAction")
-    ?.addEventListener("click", () => learnNode(item));
-  bindFormTabs(root);
+  tooltipTarget = anchor;
+  tooltip.innerHTML = tooltipMarkup(found.item, found.kind);
+  tooltip.classList.toggle("wide", (found.item.forms || []).length > 3);
+  tooltip.classList.add("visible");
+  tooltip.setAttribute("aria-hidden", "false");
+  positionTooltip(tooltip, anchor);
+}
+function hideTooltip() {
+  const tooltip = document.getElementById("skillTooltip");
+  tooltipTarget = null;
+  tooltip.classList.remove("visible");
+  tooltip.setAttribute("aria-hidden", "true");
 }
 function renderAppendix() {
   const root = document.getElementById("appendixHolder"),
@@ -604,7 +578,6 @@ const NODE_STATE_LEGEND = [
   { label: "Available", note: "Gold edge · 1 SP chip", classes: "state-available", chip: "1 SP" },
   { label: "Hover", note: "Light gold edge", classes: "state-available is-hover", chip: "1 SP" },
   { label: "Learned", note: "Bright gold + halo · ✓", classes: "state-learned", chip: "✓" },
-  { label: "Selected", note: "Cyan edge · open in detail", classes: "state-available inspected", chip: "1 SP" },
   { label: "Locked", note: "Tier or prerequisite missing", classes: "state-locked lock-tier", chip: LOCK_GLYPH },
   { label: "Excluded", note: "Red edge · other choice learned", classes: "state-locked lock-exclusive", chip: LOCK_GLYPH },
 ];
@@ -623,22 +596,44 @@ function renderAll() {
   renderTree();
   renderAppendix();
   renderStateLegend();
-  renderInspector();
+  refreshTooltip();
+}
+// After a re-render, keep the tooltip on the slot now under the pointer.
+function refreshTooltip() {
+  const tip = tooltipTarget?.dataset.tip;
+  if (!tip) return;
+  const anchor = document.querySelector(`[data-tip="${CSS.escape(tip)}"]`);
+  if (anchor) showTooltip(anchor);
+  else hideTooltip();
 }
 document.getElementById("resetClass").onclick = resetTree;
-function closeInspector() {
-  inspected = null;
-  renderInspector();
-  renderCore();
-  document
-    .querySelectorAll(".skill-node.inspected")
-    .forEach((x) => x.classList.remove("inspected"));
-}
-document.getElementById("inspectorClose").onclick = closeInspector;
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && inspected && !document.getElementById("confirmDialog").open)
-    closeInspector();
+document.addEventListener("pointerover", (event) => {
+  if (event.pointerType !== "mouse") return;
+  const anchor = event.target.closest("[data-tip]");
+  if (anchor && anchor !== tooltipTarget) showTooltip(anchor);
 });
+document.addEventListener("pointerout", (event) => {
+  if (event.pointerType !== "mouse" || !tooltipTarget) return;
+  if (!tooltipTarget.contains(event.relatedTarget)) hideTooltip();
+});
+document.addEventListener("focusin", (event) => {
+  const anchor = event.target.closest?.("[data-tip]");
+  if (anchor?.matches(":focus-visible")) showTooltip(anchor);
+});
+document.addEventListener("focusout", (event) => {
+  if (event.target === tooltipTarget && !tooltipTarget.matches(":hover")) hideTooltip();
+});
+document.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" || !tooltipTarget) return;
+  if (!event.target.closest("[data-tip], #skillTooltip")) hideTooltip();
+});
+window.addEventListener(
+  "scroll",
+  (event) => {
+    if (tooltipTarget && event.target.id !== "skillTooltip") hideTooltip();
+  },
+  { passive: true, capture: true },
+);
 document.getElementById("confirmDialog").addEventListener("click", (e) => {
   if (e.target === e.currentTarget) e.currentTarget.close();
 });
