@@ -29,7 +29,9 @@ An investment's state is resolved in this order; the first match wins and its re
 
 ## 2. Layout
 
-- Four horizontal **tier rows**, Tier I on top. Each row has a tier rail on the left (label, Roman numeral, Open/Locked chip, SP still needed, investment count).
+Page order, top to bottom: a header frame with the class tabs (selected class emblem on their left) above the three Granted slots; Universal Actions when the class has any; the tree; and a build bar with the SP progress rail and tier milestones, the `N/13 Skill Points` counter and Reset Skill Tree.
+
+- Four horizontal **tier rows**, Tier I on top. Each row has a tier rail on the left (label, Roman numeral, Open/Locked chip, SP still needed).
 - Each investment sits in the cell (`tier`, `column`) authored in its data. `column` is 1-based; the tree is as wide as its largest `column` (7–10 per class).
 - **Prerequisite lines** leave the bottom centre of the source slot and enter the top centre of the target slot with an arrowhead. Lines run vertically; when source and target columns differ, the line turns horizontally halfway between the two rows. Lines never pass through another slot (validated by `qa.mjs`).
 - **Exclusive pairs** are joined above the slots by a dashed gold bracket with a `CHOOSE ONE` chip, which becomes `CHOICE MADE` (cyan dashes) once either side is learned.
@@ -63,7 +65,7 @@ Execution fields, technical notes and presentation keys are not player-facing; t
 
 ## 4. Slot states
 
-Tree slots reuse the action-bar slot: a square icon with a thin edge and a key chip centred on its bottom edge. The simulator shows all states in its **Node states** panel.
+Tree slots reuse the action-bar slot: a square icon with a thin edge and a key chip centred on its bottom edge.
 
 | State | Edge | Chip | Art | HUD equivalent |
 |---|---|---|---|---|

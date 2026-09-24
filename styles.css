@@ -168,7 +168,7 @@ button {
 
 /* Studs on the left and right edges of the main bars. */
 .topbar::before,
-.build-panel::before {
+.build-bar::before {
   position: absolute;
   z-index: 9;
   top: 50%;
@@ -185,7 +185,6 @@ button {
 
 /* Section labels in the HUD caption style. */
 .section-label,
-.brand small,
 .core-section header small {
   color: var(--muted);
   font:
@@ -199,18 +198,40 @@ button {
    -------------------------------------------------------------------------- */
 
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 76px;
-  padding: 12px 22px;
+  display: grid;
+  padding: 0;
 }
 
-.brand {
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.header-tabs {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
+  gap: 22px;
+  padding: 16px 26px 16px 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Stud on the divider between the tabs and the Granted Core. */
+.header-tabs::after {
+  position: absolute;
+  z-index: 2;
+  bottom: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  translate: -50%;
+  background: var(--stud) center / contain no-repeat;
+  content: "";
 }
 
 .brand-mark {
@@ -239,17 +260,11 @@ button {
   filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.55));
 }
 
-.brand h1 {
-  margin: 5px 0 0;
-  color: var(--ink);
-  font:
-    700 22px/1 var(--font-ui);
-  letter-spacing: 0.01em;
-}
-
 .class-tabs {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  flex: 0 1 880px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .class-tab {
@@ -257,14 +272,15 @@ button {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  min-width: 108px;
-  padding: 9px 16px;
+  min-width: 0;
+  height: 42px;
+  padding: 0 16px;
   border: 1px solid var(--bronze-line);
   border-radius: 4px;
   background: linear-gradient(180deg, #121c24, #0a1117);
   color: var(--ink-soft);
   font:
-    600 13px var(--font-ui);
+    600 14px var(--font-ui);
   letter-spacing: 0.02em;
   cursor: pointer;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -292,39 +308,15 @@ button {
    Build status
    -------------------------------------------------------------------------- */
 
-.build-panel {
+.build-bar {
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) minmax(420px, 1.8fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 26px;
   align-items: center;
-  margin-top: 16px;
-  padding: 14px 24px;
-}
-
-.build-panel > div:first-child {
-  display: grid;
-  gap: 5px;
-  min-width: 0;
-}
-
-.build-panel > div:first-child strong {
-  color: var(--ink);
-  font:
-    800 20px/1 var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.build-panel > div:first-child span {
-  overflow: hidden;
-  color: var(--muted);
-  font: 400 13px/1.3 var(--font-ui);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 12px 24px;
 }
 
 .sp-total {
-  grid-column: 3;
   display: grid;
   justify-items: end;
   gap: 5px;
@@ -354,8 +346,6 @@ button {
 }
 
 .progress-wrap {
-  grid-column: 2;
-  grid-row: 1;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 18px;
@@ -438,8 +428,6 @@ button {
 
 /* HUD side buttons: small dark keys with a bronze edge. */
 .reset-row {
-  grid-column: 4;
-  grid-row: 1;
   padding: 0;
 }
 
@@ -650,70 +638,6 @@ button {
 }
 
 /* --------------------------------------------------------------------------
-   Legend
-   -------------------------------------------------------------------------- */
-
-.tree-toolbar,
-.keyword-legend {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.tree-toolbar {
-  gap: 22px;
-  margin-top: 4px;
-  padding: 0 6px;
-  color: var(--ink-soft);
-  font: 500 13px var(--font-ui);
-}
-
-.tree-toolbar small {
-  margin-left: auto;
-  color: var(--faint);
-  font: 400 12px var(--font-ui);
-}
-
-.tree-toolbar span {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.tree-toolbar i {
-  width: 28px;
-  height: 2px;
-  background: #aab4bd;
-}
-
-.tree-toolbar .choice-key {
-  height: 0;
-  border-top: 2px dashed var(--gold-bright);
-  background: transparent;
-}
-
-.keyword-legend {
-  gap: 6px;
-  margin-top: -6px;
-  padding: 0 6px;
-}
-
-.keyword-legend .keyword {
-  padding: 4px 9px;
-  border: 1px solid color-mix(in srgb, var(--keyword-color) 45%, #000);
-  border-radius: 4px;
-  background: #0b1217;
-  font:
-    700 10.5px var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.keyword-legend .keyword:hover {
-  border-color: var(--keyword-color);
-}
-
-/* --------------------------------------------------------------------------
    Tree board
    -------------------------------------------------------------------------- */
 
@@ -888,13 +812,6 @@ button {
     500 10.5px/1.2 var(--font-ui);
 }
 
-.tier-count {
-  margin-top: 2px;
-  color: var(--faint);
-  font:
-    400 11px var(--font-ui);
-}
-
 .tier-nodes {
   position: relative;
   display: grid;
@@ -950,16 +867,14 @@ button {
 }
 
 /* Hover — light gold edge. */
-.skill-node:hover .node-icon,
-.skill-node.is-hover .node-icon {
+.skill-node:hover .node-icon {
   --slot-edge: var(--gold-bright);
   box-shadow:
     0 0 0 1px #000,
     inset 0 0 0 1px rgba(var(--ready-rgb), 0.35);
 }
 
-.skill-node:hover > strong,
-.skill-node.is-hover > strong {
+.skill-node:hover > strong {
   color: #fff;
 }
 
@@ -1374,70 +1289,6 @@ button {
 }
 
 /* --------------------------------------------------------------------------
-   Node state legend
-   -------------------------------------------------------------------------- */
-
-.state-legend {
-  display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: 16px 22px;
-}
-
-.state-legend > header {
-  display: grid;
-  gap: 8px;
-  padding: 0 16px 0 6px;
-  border-right: 1px solid var(--line);
-}
-
-.state-legend h2 {
-  margin: 0;
-}
-
-.state-legend header > span {
-  color: var(--faint);
-  font: 400 12px/1.4 var(--font-ui);
-}
-
-.state-legend-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.state-sample {
-  display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 4px;
-  text-align: center;
-}
-
-.state-sample .skill-node {
-  margin-bottom: 8px;
-  padding: 0;
-  cursor: default;
-  pointer-events: none;
-}
-
-.state-sample .node-icon {
-  width: 52px;
-  height: 52px;
-}
-
-.state-sample strong {
-  color: var(--ink);
-  font: 600 12.5px var(--font-ui);
-}
-
-.state-sample small {
-  color: var(--muted);
-  font: 400 11px/1.3 var(--font-ui);
-}
-
-/* --------------------------------------------------------------------------
    Keywords & tooltip
    -------------------------------------------------------------------------- */
 
@@ -1524,7 +1375,7 @@ button {
 }
 
 /* --------------------------------------------------------------------------
-   Notices, appendix, footer, dialog
+   Notices, appendix, dialog
    -------------------------------------------------------------------------- */
 
 .notice {
@@ -1616,27 +1467,6 @@ button {
 
 .appendix-grid p {
   margin-top: 8px;
-}
-
-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  padding: 22px 14px 18px;
-  color: var(--faint);
-  font: 400 12px var(--font-ui);
-}
-
-footer > span + span::before {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 16px;
-  vertical-align: -1px;
-  background: var(--stud) center / contain no-repeat;
-  opacity: 0.6;
-  content: "";
 }
 
 .confirm-dialog {
@@ -1738,22 +1568,13 @@ footer > span + span::before {
    -------------------------------------------------------------------------- */
 
 @media (max-width: 1250px) {
-  .build-panel {
-    grid-template-columns: 1fr auto auto;
+  .build-bar {
+    grid-template-columns: 1fr auto;
     row-gap: 6px;
   }
 
   .progress-wrap {
     grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
-  .sp-total {
-    grid-column: 2;
-  }
-
-  .reset-row {
-    grid-column: 3;
   }
 
   .appendix-grid {
@@ -1766,57 +1587,44 @@ footer > span + span::before {
     padding: 12px 8px 4px;
   }
 
-  .topbar {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 14px;
-    padding: 16px 14px 14px;
+  .header-tabs {
+    gap: 12px;
+    padding: 14px 14px 14px 16px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
   }
 
   .brand-mark > img {
-  display: block;
-  width: 36px;
-  height: 36px;
-  transform: rotate(-45deg);
-  object-fit: contain;
-  filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.55));
-}
-
-.brand h1 {
-    font-size: 19px;
+    width: 28px;
+    height: 28px;
   }
 
   .class-tabs {
-    width: 100%;
+    flex: 1;
     gap: 4px;
   }
 
   .class-tab {
-    min-width: 0;
-    flex: 1;
-    padding: 9px 4px;
+    height: 36px;
+    padding: 0 4px;
     font-size: 12.5px;
   }
 
-  .build-panel {
-    grid-template-columns: 1fr auto;
+  .build-bar {
     gap: 10px;
-    margin-top: 14px;
-    padding: 14px;
-  }
-
-  .build-panel > div:first-child span {
-    max-width: 100%;
+    padding: 12px 14px 14px;
   }
 
   .sp-total {
-    grid-column: 2;
-    padding-left: 14px;
+    justify-items: start;
+    padding-left: 0;
+    border-left: 0;
   }
 
   .progress-wrap {
-    grid-column: 1 / -1;
-    grid-row: 2;
     grid-template-columns: 1fr;
     gap: 0;
   }
@@ -1833,12 +1641,8 @@ footer > span + span::before {
     text-align: right;
   }
 
-  .reset-row {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-
   .reset-row button {
+    min-width: 0;
     width: 100%;
   }
 
@@ -1849,23 +1653,11 @@ footer > span + span::before {
   }
 
   .core-section,
-  .universal-section,
-  .state-legend {
+  .universal-section {
     display: block;
     padding: 14px;
   }
 
-  .state-legend > header {
-    margin-bottom: 14px;
-    padding: 4px 4px 12px;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .state-legend-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: 16px;
-  }
 
   .core-section > header,
   .universal-section > header {
@@ -1889,10 +1681,6 @@ footer > span + span::before {
   .core-icon {
     width: 46px;
     height: 46px;
-  }
-
-  .tree-toolbar small {
-    display: none;
   }
 
   .vertical-tree {
@@ -1931,15 +1719,6 @@ footer > span + span::before {
     font-size: 11.5px;
   }
 
-  footer {
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
-  }
-
-  footer > span + span::before {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
