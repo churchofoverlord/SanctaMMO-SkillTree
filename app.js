@@ -225,6 +225,7 @@ function renderTabs() {
     button.className = `class-tab${name === currentClass ? " active" : ""}`;
     button.innerHTML = `<span>${name}</span>`;
     button.setAttribute("aria-pressed", String(name === currentClass));
+    button.title = DATA[name].role;
     button.onclick = () => {
       currentClass = name;
       showNotice("");
@@ -241,8 +242,6 @@ function renderBuildStatus() {
   if (mark.querySelector("img")?.getAttribute("src") !== emblem)
     mark.innerHTML = `<img src="${emblem}" alt="" />`;
   mark.title = `${currentClass} class emblem`;
-  document.getElementById("currentClass").textContent = currentClass;
-  document.getElementById("role").textContent = classData().role;
   document.getElementById("spent").textContent = count;
   document.getElementById("remaining").textContent =
     `${maxSp() - count} SP remaining`;
@@ -345,7 +344,7 @@ function renderTree() {
       section = document.createElement("section");
     section.className = `tier-section tier-${tier}${unlocked ? " unlocked" : " locked"}`;
     const need = Math.max(0, threshold(tier) - learnedCount());
-    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong>${unlocked ? "" : `<small class="tier-need">Spend ${need} more SP</small>`}<small class="tier-count">${classData().tierCounts[String(tier)]} investments</small></header>`;
+    section.innerHTML = `<header><span class="tier-kicker">Tier</span><span class="tier-numeral">${toRoman(tier)}</span><strong class="tier-status ${unlocked ? "open" : "sealed"}">${unlocked ? "Open" : "Locked"}</strong>${unlocked ? "" : `<small class="tier-need">Spend ${need} more SP</small>`}</header>`;
     const nodes = document.createElement("div");
     nodes.className = "tier-nodes";
     classData()
@@ -574,20 +573,6 @@ function renderAppendix() {
   details.innerHTML = `<summary>Synthesis forms <span>${items.length}</span></summary><div class="appendix-grid">${items.map((x) => `<article><strong>${x.name}</strong>${formatDescription(x.text, x.keywords)}</article>`).join("")}</div>`;
   root.append(details);
 }
-const NODE_STATE_LEGEND = [
-  { label: "Available", note: "Gold edge · 1 SP chip", classes: "state-available", chip: "1 SP" },
-  { label: "Hover", note: "Light gold edge", classes: "state-available is-hover", chip: "1 SP" },
-  { label: "Learned", note: "Bright gold + halo · ✓", classes: "state-learned", chip: "✓" },
-  { label: "Locked", note: "Tier or prerequisite missing", classes: "state-locked lock-tier", chip: LOCK_GLYPH },
-  { label: "Excluded", note: "Red edge · other choice learned", classes: "state-locked lock-exclusive", chip: LOCK_GLYPH },
-];
-function renderStateLegend() {
-  const sample = classData().nodes.find((n) => n.tier === 1) || classData().nodes[0];
-  document.getElementById("stateLegend").innerHTML = NODE_STATE_LEGEND.map(
-    (state) =>
-      `<div class="state-sample"><div class="sample-slot skill-node ${state.classes}" aria-hidden="true">${skillIconFrame(sample, "node-icon", state.chip)}</div><strong>${state.label}</strong><small>${state.note}</small></div>`,
-  ).join("");
-}
 function renderAll() {
   renderTabs();
   renderBuildStatus();
@@ -595,7 +580,6 @@ function renderAll() {
   renderUniversalActions();
   renderTree();
   renderAppendix();
-  renderStateLegend();
   refreshTooltip();
 }
 // After a re-render, keep the tooltip on the slot now under the pointer.

@@ -15,60 +15,31 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     />
-    <link rel="stylesheet" href="styles.css?v=hud-3" />
+    <link rel="stylesheet" href="styles.css?v=hud-5" />
   </head>
   <body data-class="fighter">
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand">
+        <h1 class="visually-hidden">SanctaMMO Primary Skill Trees</h1>
+        <div class="header-tabs">
           <span class="brand-mark" id="brandClassMark" aria-hidden="true"></span>
-          <div>
-            <small>SANCTAMMO</small>
-            <h1>Primary Skill Trees</h1>
-          </div>
+          <nav
+            class="class-tabs"
+            id="classTabs"
+            aria-label="Primary classes"
+          ></nav>
         </div>
-        <nav
-          class="class-tabs"
-          id="classTabs"
-          aria-label="Primary classes"
-        ></nav>
+        <section class="core-section" aria-labelledby="coreTitle">
+          <header>
+            <small>Always available · 0 SP</small>
+            <h2 id="coreTitle">Granted Core</h2>
+          </header>
+          <div class="core-strip" id="grantedGrid"></div>
+        </section>
       </header>
-
-      <section class="build-panel framed-panel" aria-label="Build status">
-        <div>
-          <strong id="currentClass">Fighter</strong><span id="role"></span>
-        </div>
-        <div class="sp-total">
-          <b><span id="spent">0</span>/13</b><small>Skill Points</small>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-rail">
-            <div class="progress-fill" id="progressFill"></div>
-            <div id="milestones"></div>
-          </div>
-          <span id="remaining">13 SP remaining</span>
-        </div>
-        <div class="reset-row">
-          <button id="resetClass" type="button">Reset Skill Tree</button>
-        </div>
-      </section>
 
       <main class="workspace">
         <section class="tree-region" aria-label="Primary Skill Tree">
-          <section
-            class="core-section framed-panel"
-            aria-labelledby="coreTitle"
-          >
-            <header>
-              <div>
-                <small>ALWAYS AVAILABLE</small>
-                <h2 id="coreTitle">Granted Core</h2>
-              </div>
-              <span>0 SP</span>
-            </header>
-            <div class="core-strip" id="grantedGrid"></div>
-        </section>
-
         <section
           class="universal-section framed-panel"
           id="universalActionSection"
@@ -81,62 +52,28 @@
           </header>
           <div class="core-strip" id="universalActionGrid"></div>
         </section>
-          <div class="tree-toolbar">
-            <span><i></i>Prerequisite</span
-            ><span><i class="choice-key"></i>Choose one</span
-            ><small
-              >Hover a skill for details · click to learn</small
-            >
-          </div>
-          <div class="keyword-legend" aria-label="Combat keyword categories">
-            <button type="button" class="keyword buff-term" data-keyword="Buff">
-              Buff
-            </button>
-            <button type="button" class="keyword hot-term" data-keyword="HoT">
-              HoT
-            </button>
-            <button
-              type="button"
-              class="keyword shield-term"
-              data-keyword="Shield"
-            >
-              Shield
-            </button>
-            <button type="button" class="keyword dot-term" data-keyword="DoT">
-              DoT
-            </button>
-            <button
-              type="button"
-              class="keyword debuff-term"
-              data-keyword="Debuff"
-            >
-              Debuff
-            </button>
-            <button type="button" class="keyword cc-term" data-keyword="CC">
-              CC
-            </button>
-          </div>
           <div class="tree-shell framed-panel"><div id="tree"></div></div>
-          <div class="notice" id="notice" aria-live="polite"></div>
-          <section
-            class="state-legend framed-panel"
-            aria-labelledby="stateLegendTitle"
-          >
-            <header>
-              <h2 id="stateLegendTitle" class="section-label">Node states</h2>
-              <span>Reference for the in-game Skill Tree slot</span>
-            </header>
-            <div class="state-legend-grid" id="stateLegend"></div>
+          <section class="build-bar framed-panel" aria-label="Build status">
+            <div class="progress-wrap">
+              <div class="progress-rail">
+                <div class="progress-fill" id="progressFill"></div>
+                <div id="milestones"></div>
+              </div>
+              <span id="remaining">13 SP remaining</span>
+            </div>
+            <div class="sp-total">
+              <b><span id="spent">0</span>/13</b><small>Skill Points</small>
+            </div>
+            <div class="reset-row">
+              <button id="resetClass" type="button">Reset Skill Tree</button>
+            </div>
           </section>
+          <div class="notice" id="notice" aria-live="polite"></div>
           <div id="appendixHolder"></div>
         </section>
 
       </main>
 
-      <footer>
-        <span>Basic Attack is a Universal Action.</span
-        ><span>13 Primary Skill Points available by level 15.</span>
-      </footer>
     </div>
 
     <div
@@ -165,13 +102,13 @@
       window.SKILL_TREE_DATA = window.SKILL_TREE_DATA || {};
     </script>
 
-    <script src="data/icons.js?v=hud-3"></script>
-    <script src="data/fighter.js?v=hud-3"></script>
-    <script src="data/scout.js?v=hud-3"></script>
-    <script src="data/mage.js?v=hud-3"></script>
-    <script src="data/mystic.js?v=hud-3"></script>
-    <script src="debuff-tooltips.js?v=hud-3"></script>
-    <script src="description-format.js?v=hud-3"></script>
-    <script src="app.js?v=hud-3"></script>
+    <script src="data/icons.js?v=hud-5"></script>
+    <script src="data/fighter.js?v=hud-5"></script>
+    <script src="data/scout.js?v=hud-5"></script>
+    <script src="data/mage.js?v=hud-5"></script>
+    <script src="data/mystic.js?v=hud-5"></script>
+    <script src="debuff-tooltips.js?v=hud-5"></script>
+    <script src="description-format.js?v=hud-5"></script>
+    <script src="app.js?v=hud-5"></script>
   </body>
 </html>
